@@ -110,11 +110,10 @@ class Automate():
 
 			if final == True:
 				self.etats_finaux.append(etat)
-			
-			print("etat ajouté dans l'ensemble des etats de l'automate")	
+				
 			return True
 		else:
-			print("etat deja present dans l'ensemble des etats de l'automate")
+			
 			return False
 
 
@@ -141,7 +140,7 @@ class Automate():
 	
 
 
-	def ajout_transition(self, etat_depart, symbole, etat_arrive) -> bool:
+	def ajout_transition(self, etat_depart:list, symbole:str, etat_arrive:list) -> bool:
 
 		"""
 		ajout d'une transition dans un automate
@@ -163,13 +162,17 @@ class Automate():
 			print('l\'etat d\'arrive ' + etat_arrive[0] + ' ne fait pas partie des etats.')
 			return False
 
-		if (tuple(etat_depart),symbole) not in self.transitions.keys():
+		# donc j'ajoute la trasition si : oit le couple etat initaial, symbole n'existe pas encore soit ca existe mais etat arrive n'est pas celui que je veux ajouter
+		if (tuple(etat_depart),symbole) not in self.transitions or ((tuple(etat_depart),symbole) in self.transitions and etat_arrive not in self.f_transitions(etat_depart,symbole)) :
 			
-			self.transitions[(tuple(etat_depart),symbole)]=[etat_arrive]
-			print("transition ajoutée dans l'automate")	
+			if (tuple(etat_depart),symbole) in self.transitions:
+				self.transitions[tuple(etat_depart),symbole].append(etat_arrive)
+			else:	
+				self.transitions[(tuple(etat_depart),symbole)]=[etat_arrive]
+			
 			return True
-		
-		else:
+
+		elif (tuple(etat_depart),symbole) in self.transitions and etat_arrive in self.f_transitions(etat_depart,symbole) :
 			print("transition deja presente dans l'automate")	
 			return False
 
@@ -220,29 +223,26 @@ class Automate():
 		"""
 		Affichage de facon propre l'objet automate
 		"""
-
+		intermediaires = set([etat[0] for etat in self.etats]) - set([etat[0] for etat in self.etats_initiaux]) - set([etat[0] for etat in self.etats_finaux])
 		ret =  self.nature() + ":\n"
 		ret += "   - alphabet   : {" + ", ".join(self.alphabet) + "} \n"
-		ret += "   - initiaux      : " + str(self.etats_initiaux) + "\n"
-		ret += "   - finaux    : " + str(self.etats_finaux) + "\n"
-		ret += "   - nombre d'etats : (%d) :\n" % (len(self.etats))
+		ret += "   - initiaux      : " + ", ".join([init[0] for init in self.etats_initiaux]) + "\n"
+		ret += "   - etats intermediaires : " + ", ".join([init for init in intermediaires]) + "\n" 
+		ret += "   - finaux    : " + ", ".join([init[0] for init in self.etats_finaux]) + "\n"
+		ret += "   - nombre d'etats : %d \n" % (len(self.etats))
 		ret += "   - transitions :\n"
 		for etat in self.etats:
-			ret += "       - (%s): \n" % (etat[0])
+			ret += "       Partant de l'état (%s): \n" % (etat[0])
 			for symbole in self.alphabet:
 				
-				if len(self.f_transitions(etat,symbole)) == 0:
-					ret += ".\n"
-				else:
+				if not len(self.f_transitions(etat,symbole)) == 0:
 					for dest in self.f_transitions(etat,symbole):
-						ret +=  "          --(%s)--> (%s)\n" % (symbole, dest)
-						#ret += ret + "          --" + symbole + "--> " + str(dest) + "\n"
+						ret +=  "          en lisant le symbole (%s) on arrive à l'état (%s)\n" % (symbole, dest[0])
 
 		return ret
 
 
 """
-
 ### TESTS
 
 # j'instancie la classe et je cree un automate (A)
@@ -261,7 +261,7 @@ A_transitions = {
 			((3,),'a'):[[0]]
 		}
 
-A.create(alphabet=['a','b'], etats=[[0], [1], [2], [3]], etats_initiaux=[[0]], etats_finaux=[[3]], transitions = A_transitions)
+A.create(alphabet=['a','b'], etats=[['0'], ['1'], ['2'], ['3']], etats_initiaux=[['0']], etats_finaux=[['3']], transitions = A_transitions)
 
 # j'instancie la classe et je cree un automate B (la c'est comme un automate qu'on a minimisé)
 B = Automate()
@@ -282,5 +282,4 @@ B_transitions = {
 B.create(alphabet=['a','b'], etats=[['1-6'], ['2-7'], ['3-8'], ['4-9'], ['0-5']], etats_initiaux=[['1-6']], etats_finaux=[['0-5']], transitions = B_transitions)
 
 print(B)
-
 """
