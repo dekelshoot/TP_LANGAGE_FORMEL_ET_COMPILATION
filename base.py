@@ -1,28 +1,31 @@
-"""
-Ce qu'il faut savoir de la calsse Automate() :
-
-1. L'alphabet est une LISTE de tous les symboles du langage reconnu
-2. L'ensemble des etats, Q, c'est egalement une liste des differents etats de l'automate, donc une LISTE DE LISTE.
-3. L'etat initial, est une LISTE DE LISTE, (d'au moins une liste), si la liste n'a qu'une seule liste alors, 
-   alors cet automate n'a qu'un seul etat initial, maintenant si cette une seule liste n'a qu'un seul element, alors l'etat initial
-   est un sous ensemble d'un seul etat..
-4. Pareil pour l'etat final.
-5. Un etat qi maintenant est une simple LISTE d'un ou plusieurs elements, si cette liste a un seul element alors cet etat est un 
-   sous ensemble d'un seul etat
-6. La fonction de transition prend donc en entree, une liste d'elements, un str ( le symbole ) et retourne une liste de liste, j'explique :
-   un etat est materialisé par une liste d'elements, ca peut etre plus d'un element(dans le cas d'un determinisé), 
-   le symbole est tout simplement un caractere de l'alphabet à lire. La liste de le liste retournee est tout simplement la liste
-   des differents etats ou la transition peut nous emmener, la premiere liste est pour contenir ces differents etats, la deuxieme
-   est pour chacun des etats ou ca nous mene
-7. Le dictionnaire transactions est un dictionnaire materialisant les transitions de l'automate, un element du dictionnaire est 
-   tel que la cle est un tuple contenant deux elements, le premiere est un tuple, qui a tous les elements de l'etat et l'autre
-   element est le symbole lu, maintenant la valeur est est une liste de liste donc la liste des etats aux quels ca mene
-
-"""
-
 # classe automate
 
+from re import T
+
+
 class Automate():
+
+	"""
+	Ce qu'il faut savoir de la calsse Automate() :
+
+	1. L'alphabet est une LISTE de tous les symboles du langage reconnu
+	2. L'ensemble des etats, Q, c'est egalement une liste des differents etats de l'automate, donc une LISTE DE LISTE.
+	3. L'etat initial, est une LISTE DE LISTE, (d'au moins une liste), si la liste n'a qu'une seule liste alors, 
+	alors cet automate n'a qu'un seul etat initial, maintenant si cette une seule liste n'a qu'un seul element, alors l'etat initial
+	est un sous ensemble d'un seul etat..
+	4. Pareil pour l'etat final.
+	5. Un etat qi maintenant est une simple LISTE d'un ou plusieurs elements, si cette liste a un seul element alors cet etat est un 
+	sous ensemble d'un seul etat
+	6. La fonction de transition prend donc en entree, une liste d'elements, un str ( le symbole ) et retourne une liste de liste, j'explique :
+	un etat est materialisé par une liste d'elements, ca peut etre plus d'un element(dans le cas d'un determinisé), 
+	le symbole est tout simplement un caractere de l'alphabet à lire. La liste de le liste retournee est tout simplement la liste
+	des differents etats ou la transition peut nous emmener, la premiere liste est pour contenir ces differents etats, la deuxieme
+	est pour chacun des etats ou ca nous mene
+	7. Le dictionnaire transactions est un dictionnaire materialisant les transitions de l'automate, un element du dictionnaire est 
+	tel que la cle est un tuple contenant deux elements, le premiere est un tuple, qui a tous les elements de l'etat et l'autre
+	element est le symbole lu, maintenant la valeur est est une liste de liste donc la liste des etats aux quels ca mene
+
+	"""
 
 	
 	# Constructeur de la classe
@@ -89,6 +92,88 @@ class Automate():
 		return True
 
 
+	def ajout_etat(self, etat:list, initial = False, final = False) -> bool:
+
+		"""
+		ajout d'un etat dans un automate
+		@param state : l'etat que tu veux ajouter dans l'automate (une liste, qui est l'etat)
+		@param initial : si True, alors l'etat est un etat initial
+		@param final : si True, alors l'etat est un etat final
+
+		"""
+
+		if not etat in self.etats:
+			self.etats.append(etat)
+
+			if initial == True:
+				self.etats_initiaux.append(etat)
+
+			if final == True:
+				self.etats_finaux.append(etat)
+			
+			print("etat ajouté dans l'ensemble des etats de l'automate")	
+			return True
+		else:
+			print("etat deja present dans l'ensemble des etats de l'automate")
+			return False
+
+
+	def valider_symbole(self, symbole:str) -> bool:
+
+		if symbole not in self.alphabet:
+			return False
+		return True
+
+	
+	def ajouter_symbole(self, symbole:str) -> bool:
+
+		if symbole not in self.alphabet:
+			self.alphabet.append(symbole)
+			return True
+		return False
+	
+
+	def valider_etat(self, etat:list) -> bool:
+
+		if etat not in self.etats:
+			return False
+		return True
+	
+
+
+	def ajout_transition(self, etat_depart, symbole, etat_arrive) -> bool:
+
+		"""
+		ajout d'une transition dans un automate
+		@param etat_depart : l'etat de depart de la transition
+		@param symbole : si True, alors l'etat est un etat initial
+		@param etat_arrive : si True, alors l'etat est un etat final
+
+		"""
+
+		if not self.valider_symbole(symbole):
+			print('le symbole ' + symbole + ' ne fait pas partie de l\'alphabet.')
+			return False
+
+		if not self.valider_etat(etat_depart):
+			print('l\'etat de depart ' + etat_depart[0] + ' ne fait pas partie des etats.')
+			return False
+
+		if not self.valider_etat(etat_arrive):
+			print('l\'etat d\'arrive ' + etat_arrive[0] + ' ne fait pas partie des etats.')
+			return False
+
+		if (tuple(etat_depart),symbole) not in self.transitions.keys():
+			
+			self.transitions[(tuple(etat_depart),symbole)]=[etat_arrive]
+			print("transition ajoutée dans l'automate")	
+			return True
+		
+		else:
+			print("transition deja presente dans l'automate")	
+			return False
+
+
 	# fonction qui retourne toutes les natures d'un automate
 	def nature(self)->str:
 		
@@ -113,12 +198,50 @@ class Automate():
 	def create(self, alphabet:list, etats:list, etats_initiaux:list, 
 		etats_finaux:list, transitions:dict):
 
+		"""
+		creation d'un automate (definition du quintuplet)
+		@param alphabet : l'alphabet de l'automate
+		@param etats : liste des etats de l'automate (il s'agit s'une liste de liste)
+		@param etats_initiaux : liste des etats initiaux de l'automate (il s'agit d'une liste d'une liste)
+		@param etats_finaux : liste des etats finaux de l'automate (il s'agit d'une liste d'une liste)
+
+		"""
+
 		self.alphabet = alphabet
 		self.etats = etats
 		self.etats_initiaux = etats_initiaux
 		self.etats_finaux = etats_finaux
 		self.transitions = transitions
 
+
+	# Afficher de facon commode un automate
+	def __str__(self):
+
+		"""
+		Affichage de facon propre l'objet automate
+		"""
+
+		ret =  self.nature() + ":\n"
+		ret += "   - alphabet   : {" + ", ".join(self.alphabet) + "} \n"
+		ret += "   - initiaux      : " + str(self.etats_initiaux) + "\n"
+		ret += "   - finaux    : " + str(self.etats_finaux) + "\n"
+		ret += "   - nombre d'etats : (%d) :\n" % (len(self.etats))
+		ret += "   - transitions :\n"
+		for etat in self.etats:
+			ret += "       - (%s): \n" % (etat[0])
+			for symbole in self.alphabet:
+				
+				if len(self.f_transitions(etat,symbole)) == 0:
+					ret += ".\n"
+				else:
+					for dest in self.f_transitions(etat,symbole):
+						ret +=  "          --(%s)--> (%s)\n" % (symbole, dest)
+						#ret += ret + "          --" + symbole + "--> " + str(dest) + "\n"
+
+		return ret
+
+
+"""
 
 ### TESTS
 
@@ -158,4 +281,6 @@ B_transitions = {
 
 B.create(alphabet=['a','b'], etats=[['1-6'], ['2-7'], ['3-8'], ['4-9'], ['0-5']], etats_initiaux=[['1-6']], etats_finaux=[['0-5']], transitions = B_transitions)
 
-print(A.nature())
+print(B)
+
+"""
