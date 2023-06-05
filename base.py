@@ -1,5 +1,6 @@
 # classe automate
 
+from inspect import _void
 from re import T
 
 
@@ -79,6 +80,9 @@ class Automate():
 		if len(self.etats_initiaux) > 1:
 			return False
 
+		if len(self.etats) == 0 or len(self.alphabet) == 0:
+			return False
+
 		return True
 
 
@@ -89,6 +93,10 @@ class Automate():
 			for char in self.alphabet:
 				if (tuple(etat),char) not in self.transitions.keys():
 					return False
+		
+		if len(self.etats) == 0 or len(self.alphabet) == 0:
+			return False
+
 		return True
 
 
@@ -139,7 +147,6 @@ class Automate():
 		return True
 	
 
-
 	def ajout_transition(self, etat_depart:list, symbole:str, etat_arrive:list) -> bool:
 
 		"""
@@ -177,6 +184,17 @@ class Automate():
 			return False
 
 
+	def renommer_etat(self, ancien_nom:str, nouveau_nom:str):
+
+		self.etats[self.etats.index([ancien_nom])] = [nouveau_nom]
+
+		if [ancien_nom] in self.etats_initiaux:
+			self.etats_initiaux[self.etats_initiaux.index([ancien_nom])] = [nouveau_nom]
+	
+		if [ancien_nom] in self.etats_finaux:
+			self.etats_finaux[self.etats_finaux.index([ancien_nom])] = [nouveau_nom]
+
+
 	# fonction qui retourne toutes les natures d'un automate
 	def nature(self)->str:
 		
@@ -193,6 +211,9 @@ class Automate():
 
 		if self.est_complet():
 			nature.append("Complet")
+
+		if len(nature) == 0:
+			nature = ['non correctement defini.']
 
 		return "Cet automate est : " + ", ".join(nature)
 
@@ -217,6 +238,56 @@ class Automate():
 		self.transitions = transitions
 
 
+	# 1. determinisation d'un automate
+	def determinisation(self):
+
+		if not self.est_deterministe():
+			
+			tous_les_etats_du_determinise = []	
+			toutes_les_transitions_du_determinise = {}	
+
+			etat_initial_du_determinise = []
+			for etat in self.etats_initiaux:
+				for num_etat in etat:
+					etat_initial_du_determinise.append(num_etat)
+			
+			tous_les_etats_du_determinise.append(etat_initial_du_determinise)
+			etat_initial_du_determinise = [etat_initial_du_determinise]
+			
+			for etat in tous_les_etats_du_determinise:
+				
+				for character in self.alphabet:
+					nouvel_etat_pour_charactere = []
+					
+					for numero_etat in etat:
+						
+						liste_des_etats = self.f_transitions([numero_etat], character)
+						
+						for e in liste_des_etats: 
+							for num_etat in e:
+								if num_etat not in nouvel_etat_pour_charactere: nouvel_etat_pour_charactere.append(num_etat)
+					if nouvel_etat_pour_charactere not in tous_les_etats_du_determinise:
+						if len(nouvel_etat_pour_charactere) != 0:
+							tous_les_etats_du_determinise.append(nouvel_etat_pour_charactere)
+
+					if len(nouvel_etat_pour_charactere) != 0:	
+						toutes_les_transitions_du_determinise[(tuple(etat),character)]=[nouvel_etat_pour_charactere]
+				
+
+			etats_finaux_du_determinise = []
+			for etat in tous_les_etats_du_determinise:
+				for etat_final in self.etats_finaux: # ici aussi
+					for num_etat in etat_final:
+						if num_etat in etat:
+							if etat not in etats_finaux_du_determinise: etats_finaux_du_determinise.append(etat)
+			etats_finaux_du_determinise = [etats_finaux_du_determinise]
+				
+			
+			self.etats_initiaux = tous_les_etats_du_determinise ; self.etats_finaux = etats_finaux_du_determinise 
+			self.etats =  etat_initial_du_determinise ; self.transitions = toutes_les_transitions_du_determinise
+			
+
+
 	# Afficher de facon commode un automate
 	def __str__(self):
 
@@ -224,7 +295,7 @@ class Automate():
 		Affichage de facon propre l'objet automate
 		"""
 		intermediaires = set([etat[0] for etat in self.etats]) - set([etat[0] for etat in self.etats_initiaux]) - set([etat[0] for etat in self.etats_finaux])
-		ret =  self.nature() + ":\n"
+		ret =  self.nature() + "\n"
 		ret += "   - alphabet   : {" + ", ".join(self.alphabet) + "} \n"
 		ret += "   - initiaux      : " + ", ".join([init[0] for init in self.etats_initiaux]) + "\n"
 		ret += "   - etats intermediaires : " + ", ".join([init for init in intermediaires]) + "\n" 
@@ -242,7 +313,7 @@ class Automate():
 		return ret
 
 
-"""
+
 ### TESTS
 
 # j'instancie la classe et je cree un automate (A)
@@ -281,5 +352,5 @@ B_transitions = {
 
 B.create(alphabet=['a','b'], etats=[['1-6'], ['2-7'], ['3-8'], ['4-9'], ['0-5']], etats_initiaux=[['1-6']], etats_finaux=[['0-5']], transitions = B_transitions)
 
-print(B)
-"""
+print(A)
+print(A.determinisation())

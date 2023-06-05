@@ -76,8 +76,9 @@ def definir() -> Automate:
                 
                 j = j+1
 
-            print(retour)
-
     return A
 
-print(f"\n{definir()}")
+automate = definir()
+print(automate)
+automate.renommer_etat('0', '00')
+print(automate)
