@@ -234,6 +234,23 @@ class Automate():
 
         return ret
 
+    def Union(lst1, lst2):
+        final_list = list(set(lst1) | set(lst2))
+        return final_list
+    # surcharge de l'opération d'addition
+
+    def __add__(self, other):
+        alphabet = self.Union(self.alphabet, other.alphabet)
+        etats = self.Union(self.etats, other.etats)
+        etats_initiaux = self.Union(self.etats_initiaux, other.etats_initiaux)
+        etats_finaux = self.Union(self.etats_finaux + other.etats_finaux)
+        transitions = {}
+        transitions.update(self.transitions)
+        transitions.update(other.transitions)
+        res = Automate()
+        res.create(alphabet, etats, etats_initiaux, etats_finaux, transitions)
+        return res
+
 
 """
 ### TESTS
