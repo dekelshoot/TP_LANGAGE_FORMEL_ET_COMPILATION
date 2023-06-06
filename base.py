@@ -48,7 +48,7 @@ class Automate():
 	def est_epsilone_non_deterministe(self)->bool:
 		
 		for trans in self.transitions.keys():
-			if trans[1] == 'e' :
+			if trans[1] == 'ε' :
 				return True
 		return False
 
@@ -185,21 +185,30 @@ class Automate():
 					for num_etat in etat_final:
 						if num_etat in etat:
 							if etat not in etats_finaux_du_determinise: etats_finaux_du_determinise.append(etat)
-			etats_finaux_du_determinise = [etats_finaux_du_determinise]
+			etats_finaux_du_determinise = etats_finaux_du_determinise
 				
 			
 			self.etats_initiaux = tous_les_etats_du_determinise ; self.etats_finaux = etats_finaux_du_determinise 
 			self.etats =  etat_initial_du_determinise ; self.transitions = toutes_les_transitions_du_determinise
-		return	
+		
 
 	# fonction permettant de creer un automate
 	def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict):
-	    
+		"""
+        creation d'un automate (definition du quintuplet)
+        @param alphabet : l'alphabet de l'automate
+        @param etats : liste des etats de l'automate (il s'agit s'une liste de liste)
+        @param etats_initiaux : liste des etats initiaux de l'automate (il s'agit d'une liste d'une liste)
+        @param etats_finaux : liste des etats finaux de l'automate (il s'agit d'une liste d'une liste)
+
+        """
+
 		self.alphabet = alphabet
 		self.etats = etats
 		self.etats_initiaux = etats_initiaux
 		self.etats_finaux = etats_finaux
 		self.transitions = transitions
+
 
 	def ajout_transition(self, etat_depart: list, symbole: str, etat_arrive: list) -> bool:
        
@@ -238,7 +247,7 @@ class Automate():
 		nature = []
 			
 		if self.est_epsilone_non_deterministe():
-			nature.append("e-AFN")
+			nature.append("ε-AFN")
 
 		if self.est_non_deterministe():
 			nature.append("AFN")
@@ -280,8 +289,23 @@ class Automate():
 		return ret
     
 
-   
+	# surcharge de l'opération d'addition
+	def __add__(self, other):
 
+		alphabet = self.sup_doublon(self.alphabet+other.alphabet)
+		etats = self.etats+other.etats
+		print(etats)
+		etats_initiaux = [['init']]
+		etats.append(['init'])
+		print(etats_initiaux)
+		etats_finaux = self.etats_finaux+other.etats_finaux
+		print(etats_finaux)
+		transitions = {}
+		transitions.update(self.transitions)
+		transitions.update(other.transitions)
+		res = Automate()
+		res.create(alphabet, etats, etats_initiaux, etats_finaux, transitions)
+		return res
 
 
 ### TESTS
@@ -291,15 +315,15 @@ A = Automate()
 
 # exemple de ce à quoi doit ressembler le dictionnaire des transitions
 A_transitions = {
-			((0,),'b'):[[0]], 
-			((0,),'a'):[[1]],
-			((1,),'b'):[[1]],
-			((1,),'a'):[[2]],
-			#((2,),'b'):[[2]],
-			((2,),'b'):[[2],[3]],
-			((2,),'a'):[[0]],
-			((3,),'b'):[[3]],
-			((3,),'a'):[[0]]
+			(('0',),'b'):[['0']], 
+			(('0',),'a'):[['1']],
+			(('1',),'b'):[['1']],
+			(('1',),'a'):[['2']],
+			#(('2',),'b'):[['2']],
+			(('2',),'b'):[['2'],['3']],
+			(('2',),'a'):[['0']],
+			(('3',),'b'):[['3']],
+			(('3',),'a'):[['0']]
 		}
 
 A.create(alphabet=['a','b'], etats=[['0'], ['1'], ['2'], ['3']], etats_initiaux=[['0']], etats_finaux=[['3']], transitions = A_transitions)
@@ -322,5 +346,7 @@ B_transitions = {
 
 B.create(alphabet=['a','b'], etats=[['1-6'], ['2-7'], ['3-8'], ['4-9'], ['0-5']], etats_initiaux=[['1-6']], etats_finaux=[['0-5']], transitions = B_transitions)
 
-print(B)
-#print(A.determinisation())
+#print(B)
+#print(A)
+#A.determinisation()
+#print(A)

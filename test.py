@@ -1,15 +1,15 @@
-# import base
-# import util
-# A = base.Automate()
-# A.ajouter_symbole("a")
-# A.ajouter_symbole("b")
-# A.ajout_etat(["1"], initial=True)
-# A.ajout_etat(["2",], final=True)
-# A.ajout_transition(["1"], "a", ["1"])
-# A.ajout_transition(["1"], "b", ["2"])
-# A.ajout_transition(["2"], "b", ["2"])
-# util.to_png(A=A)
-# print(A)
+import base
+import util
+A = base.Automate()
+A.ajouter_symbole("a")
+A.ajouter_symbole("b")
+A.ajout_etat(["1"], initial=True)
+A.ajout_etat(["2",], final=True)
+A.ajout_transition(["1"], "a", ["1"])
+A.ajout_transition(["1"], "b", ["2"])
+A.ajout_transition(["2"], "b", ["2"])
+util.to_png(A=A)
+print(A)
 
 # import util
 # import determinisation
@@ -34,7 +34,7 @@
 # C = completion.completion(B)
 # util.to_png(B)
 
-
+"""
 import util
 import base
 import reconnaissance
@@ -62,13 +62,13 @@ A.ajout_transition(["1"], "a", ["0"])
 
 B.ajout_transition(["0"], "a", ["0"])
 B.ajout_transition(["0"], "b", ["1"])
-B.ajout_transition(["1"], "b", ["1"])
 B.ajout_transition(["1"], "b", ["0"])
 
 # print(A)
 # print(B)
 C = A+B
 
-print(C)
+# print(C)
 
 util.to_png(determinisation(C))
+"""
