@@ -1,9 +1,5 @@
 # classe automate
 
-from inspect import _void
-from re import T
-
-
 class Automate():
 
 	"""
@@ -145,100 +141,9 @@ class Automate():
 		if etat not in self.etats:
 			return False
 		return True
-	
-
-	def ajout_transition(self, etat_depart:list, symbole:str, etat_arrive:list) -> bool:
-
-		"""
-		ajout d'une transition dans un automate
-		@param etat_depart : l'etat de depart de la transition
-		@param symbole : si True, alors l'etat est un etat initial
-		@param etat_arrive : si True, alors l'etat est un etat final
-
-		"""
-
-		if not self.valider_symbole(symbole):
-			print('le symbole ' + symbole + ' ne fait pas partie de l\'alphabet.')
-			return False
-
-		if not self.valider_etat(etat_depart):
-			print('l\'etat de depart ' + etat_depart[0] + ' ne fait pas partie des etats.')
-			return False
-
-		if not self.valider_etat(etat_arrive):
-			print('l\'etat d\'arrive ' + etat_arrive[0] + ' ne fait pas partie des etats.')
-			return False
-
-		# donc j'ajoute la trasition si : oit le couple etat initaial, symbole n'existe pas encore soit ca existe mais etat arrive n'est pas celui que je veux ajouter
-		if (tuple(etat_depart),symbole) not in self.transitions or ((tuple(etat_depart),symbole) in self.transitions and etat_arrive not in self.f_transitions(etat_depart,symbole)) :
-			
-			if (tuple(etat_depart),symbole) in self.transitions:
-				self.transitions[tuple(etat_depart),symbole].append(etat_arrive)
-			else:	
-				self.transitions[(tuple(etat_depart),symbole)]=[etat_arrive]
-			
-			return True
-
-		elif (tuple(etat_depart),symbole) in self.transitions and etat_arrive in self.f_transitions(etat_depart,symbole) :
-			print("transition deja presente dans l'automate")	
-			return False
 
 
-	def renommer_etat(self, ancien_nom:str, nouveau_nom:str):
-
-		self.etats[self.etats.index([ancien_nom])] = [nouveau_nom]
-
-		if [ancien_nom] in self.etats_initiaux:
-			self.etats_initiaux[self.etats_initiaux.index([ancien_nom])] = [nouveau_nom]
-	
-		if [ancien_nom] in self.etats_finaux:
-			self.etats_finaux[self.etats_finaux.index([ancien_nom])] = [nouveau_nom]
-
-
-	# fonction qui retourne toutes les natures d'un automate
-	def nature(self)->str:
-		
-		nature = []
-		
-		if self.est_epsilone_non_deterministe():
-			nature.append("e-AFN")
-
-		if self.est_non_deterministe():
-			nature.append("AFN")
-
-		if self.est_deterministe():
-			nature.append("AFD")
-
-		if self.est_complet():
-			nature.append("Complet")
-
-		if len(nature) == 0:
-			nature = ['non correctement defini.']
-
-		return "Cet automate est : " + ", ".join(nature)
-
-
-	# fonction permettant de creer un automate
-	def create(self, alphabet:list, etats:list, etats_initiaux:list, 
-		etats_finaux:list, transitions:dict):
-
-		"""
-		creation d'un automate (definition du quintuplet)
-		@param alphabet : l'alphabet de l'automate
-		@param etats : liste des etats de l'automate (il s'agit s'une liste de liste)
-		@param etats_initiaux : liste des etats initiaux de l'automate (il s'agit d'une liste d'une liste)
-		@param etats_finaux : liste des etats finaux de l'automate (il s'agit d'une liste d'une liste)
-
-		"""
-
-		self.alphabet = alphabet
-		self.etats = etats
-		self.etats_initiaux = etats_initiaux
-		self.etats_finaux = etats_finaux
-		self.transitions = transitions
-
-
-	# 1. determinisation d'un automate
+	# determinisation d'un automate
 	def determinisation(self):
 
 		if not self.est_deterministe():
@@ -285,7 +190,69 @@ class Automate():
 			
 			self.etats_initiaux = tous_les_etats_du_determinise ; self.etats_finaux = etats_finaux_du_determinise 
 			self.etats =  etat_initial_du_determinise ; self.transitions = toutes_les_transitions_du_determinise
+		return	
+
+	# fonction permettant de creer un automate
+	def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict):
+	    
+		self.alphabet = alphabet
+		self.etats = etats
+		self.etats_initiaux = etats_initiaux
+		self.etats_finaux = etats_finaux
+		self.transitions = transitions
+
+	def ajout_transition(self, etat_depart: list, symbole: str, etat_arrive: list) -> bool:
+       
+	    
+		if not self.valider_symbole(symbole):
+			print('le symbole ' + symbole + ' ne fait pas partie de l\'alphabet.')
+			return False
+
+		if not self.valider_etat(etat_depart):
+			print('l\'etat de depart ' + etat_depart[0] + ' ne fait pas partie des etats.')
+			return False
+
+		if not self.valider_etat(etat_arrive):
+			print('l\'etat d\'arrive ' + etat_arrive[0] + ' ne fait pas partie des etats.')
+			return False
+
+        # donc j'ajoute la trasition si : oit le couple etat initaial, symbole n'existe pas encore soit ca existe mais etat arrive n'est pas celui que je veux ajouter
+		if (tuple(etat_depart), symbole) not in self.transitions or ((tuple(etat_depart), symbole) in self.transitions and etat_arrive not in self.f_transitions(etat_depart, symbole)):
+
+			if (tuple(etat_depart), symbole) in self.transitions:
+				self.transitions[tuple(etat_depart),symbole].append(etat_arrive)
+			else:
+                # print("l'état d'arrivé est", etat_arrive)
+				self.transitions[(tuple(etat_depart), symbole)] = [etat_arrive]
+
+			return True
+
+		elif (tuple(etat_depart), symbole) in self.transitions and etat_arrive in self.f_transitions(etat_depart, symbole):
+			print("transition deja presente dans l'automate")
+			return False
+
+
+    # fonction qui retourne toutes les natures d'un automate
+	def nature(self) -> str:
+
+		nature = []
 			
+		if self.est_epsilone_non_deterministe():
+			nature.append("e-AFN")
+
+		if self.est_non_deterministe():
+			nature.append("AFN")
+
+		if self.est_deterministe():
+			nature.append("AFD")
+
+		if self.est_complet():
+			nature.append("Complet")
+
+		if len(nature) == 0:
+			nature = ['non correctement defini.']
+
+		return "Cet automate est : " + ", ".join(nature)
 
 
 	# Afficher de facon commode un automate
@@ -309,8 +276,11 @@ class Automate():
 				if not len(self.f_transitions(etat,symbole)) == 0:
 					for dest in self.f_transitions(etat,symbole):
 						ret +=  "          en lisant le symbole (%s) on arrive à l'état (%s)\n" % (symbole, dest[0])
-
+						
 		return ret
+    
+
+   
 
 
 
@@ -352,5 +322,5 @@ B_transitions = {
 
 B.create(alphabet=['a','b'], etats=[['1-6'], ['2-7'], ['3-8'], ['4-9'], ['0-5']], etats_initiaux=[['1-6']], etats_finaux=[['0-5']], transitions = B_transitions)
 
-print(A)
-print(A.determinisation())
+print(B)
+#print(A.determinisation())
