@@ -62,13 +62,12 @@ A.ajout_transition(["1"], "a", ["0"])
 
 B.ajout_transition(["0"], "a", ["0"])
 B.ajout_transition(["0"], "b", ["1"])
-B.ajout_transition(["1"], "b", ["1"])
 B.ajout_transition(["1"], "b", ["0"])
 
 # print(A)
 # print(B)
 C = A+B
 
-print(C)
+# print(C)
 
 util.to_png(determinisation(C))

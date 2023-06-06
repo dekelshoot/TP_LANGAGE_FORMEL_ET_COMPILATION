@@ -234,16 +234,25 @@ class Automate():
 
         return ret
 
-    def Union(lst1, lst2):
-        final_list = list(set(lst1) | set(lst2))
-        return final_list
+    def sup_doublon(self, list: list):
+        new_list = []
+
+        for i in list:
+            if i not in new_list:
+                new_list.append(i)
+        return new_list
     # surcharge de l'opération d'addition
 
     def __add__(self, other):
-        alphabet = self.Union(self.alphabet, other.alphabet)
-        etats = self.Union(self.etats, other.etats)
-        etats_initiaux = self.Union(self.etats_initiaux, other.etats_initiaux)
-        etats_finaux = self.Union(self.etats_finaux + other.etats_finaux)
+
+        alphabet = self.sup_doublon(self.alphabet+other.alphabet)
+        etats = self.etats+other.etats
+        print(etats)
+        etats_initiaux = [['init']]
+        etats.append(['init'])
+        print(etats_initiaux)
+        etats_finaux = self.etats_finaux+other.etats_finaux
+        print(etats_finaux)
         transitions = {}
         transitions.update(self.transitions)
         transitions.update(other.transitions)
