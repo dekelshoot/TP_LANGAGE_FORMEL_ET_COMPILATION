@@ -1,15 +1,15 @@
-import base
-import util
-A = base.Automate()
-A.ajouter_symbole("a")
-A.ajouter_symbole("b")
-A.ajout_etat(["1"], initial=True)
-A.ajout_etat(["2",], final=True)
-A.ajout_transition(["1"], "a", ["1"])
-A.ajout_transition(["1"], "b", ["2"])
-A.ajout_transition(["2"], "b", ["2"])
-util.to_png(A=A)
-print(A)
+# import base
+# import util
+# A = base.Automate()
+# A.ajouter_symbole("a")
+# A.ajouter_symbole("b")
+# A.ajout_etat(["1"], initial=True)
+# A.ajout_etat(["2",], final=True)
+# A.ajout_transition(["1"], "a", ["1"])
+# A.ajout_transition(["1"], "b", ["2"])
+# A.ajout_transition(["2"], "b", ["2"])
+# util.to_png(A=A)
+# print(A)
 
 # import util
 # import determinisation
@@ -72,3 +72,12 @@ C = A+B
 
 util.to_png(determinisation(C))
 """
+
+import util
+import determinisation
+A = util.read("AF.af")
+util.to_png(A=A)
+B = determinisation.determinisation(A)
+C = A.get_langage_commentaire()
+util.to_png(A=B, filename="determinisation.png")
+util.to_png(A=C, filename="commentaire.png")

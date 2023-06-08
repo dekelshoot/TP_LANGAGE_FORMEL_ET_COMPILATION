@@ -1,10 +1,4 @@
 # classe automate
-import copy
-from re import T
-
-
-from base import B
-
 
 class Automate():
 
@@ -39,6 +33,7 @@ class Automate():
 		self.etats_initiaux = []
 		self.etats_finaux = []
 		self.transitions = {}
+		self.type = "unknow"
 
 	
 	# fonction de transition
@@ -87,7 +82,7 @@ class Automate():
 
 		for trans in self.transitions.keys():
 			if trans[1] == 'ε' :
-				return True
+				return False
 
 		return True
 
@@ -315,7 +310,7 @@ class Automate():
 
 
 	# fonction permettant de creer un automate
-	def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict):
+	def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict, type="unknow"):
 		"""
         creation d'un automate (definition du quintuplet)
         @param alphabet : l'alphabet de l'automate
@@ -330,6 +325,7 @@ class Automate():
 		self.etats_initiaux = etats_initiaux
 		self.etats_finaux = etats_finaux
 		self.transitions = transitions
+		self.type = type
 
 
 	def ajout_transition(self, etat_depart: list, symbole: str, etat_arrive: list) -> bool:
@@ -491,6 +487,54 @@ class Automate():
 			res.create(self.alphabet, tous_les_etats_de_union, etat_initial_union, etats_finaux_de_union, toutes_les_transitions_union)
 			print(res)
 		return res
+	
+	def get_langage_commentaire(self):
+		"""
+		Langage commentaire est une fonction qui retourne un automate 
+        qui reconnais les commentaires d'un langage
+        """
+		A = Automate()
+		A.alphabet = self.alphabet
+		special_char = ["*", "/", "%"]
+		A.alphabet += special_char
+
+		A.ajout_etat(["0"], initial=True)
+		A.ajout_etat(["1"])
+		A.ajout_etat(["2"])
+		A.ajout_etat(["3"])
+		A.ajout_etat(["4"])
+		A.ajout_etat(["5"])
+		A.ajout_etat(["6"])
+		A.ajout_etat(["7",], final=True)
+
+        # debut du commentaierz*e
+		A.ajout_transition(["0"], "/", ["1"])
+		A.ajout_transition(["1"], "*", ["2"])
+
+		for symbole in A.alphabet:
+			if symbole not in special_char:
+				A.ajout_transition(["2"], symbole, ["2"])
+				A.ajout_transition(["5"], symbole, ["2"])
+
+        # echapement du commentaire
+		A.ajout_transition(["2"], "%", ["3"])
+		A.ajout_transition(["3"], "*", ["4"])
+		A.ajout_transition(["4"], "/", ["5"])
+
+        # fin du commentaire
+		A.ajout_transition(["2"], "*", ["6"])
+		A.ajout_transition(["6"], "/", ["7"])
+
+		return A
+
+
+alphabets = {
+    "int": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "boolean": ["T", "r", "u", "e", "F", "a", "l", "s", "e"],
+    "operators": ["+", "-", "*", "/", "="],
+    "letters": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
+    "conditions": ["if", "else", "for", "for_each", "while"]
+}
 
 
 ### TESTS
@@ -546,7 +590,7 @@ a.ajout_transition( ['0'] , "a" , ['2'])
 a.ajout_transition( ['1'] , "b" , ['0'])
 a.ajout_transition( ['2'] , "a" , ['1'])
 
-
+"""
 b = Automate()
 
 b.ajouter_symbole(symbole = "a")
@@ -559,7 +603,6 @@ b.ajout_etat(etat = ['4'] , )
 
 b.ajout_transition( ['3'] , "a" , ['4'])
 b.ajout_transition( ['4'] , "b" , ['3'])
-"""
 
 a = Automate()
 
@@ -625,4 +668,5 @@ c.ajout_transition( ['5'] , "c" , ['5'])
 
 
 print(a)
-a.minimiser()
+d = a+b
+print(d)

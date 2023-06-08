@@ -33,6 +33,7 @@ class Automate():
 		self.etats_initiaux = []
 		self.etats_finaux = []
 		self.transitions = {}
+		self.type = "unknow"
 
 	
 	# fonction de transition
@@ -78,6 +79,10 @@ class Automate():
 
 		if len(self.etats) == 0 or len(self.alphabet) == 0:
 			return False
+
+		for trans in self.transitions.keys():
+			if trans[1] == 'ε' :
+				return False
 
 		return True
 
@@ -144,7 +149,7 @@ class Automate():
 
 
 	# determinisation d'un automate
-	def determinisation(self):
+	def determiniser(self):
 
 		if not self.est_deterministe():
 			
@@ -192,8 +197,120 @@ class Automate():
 			self.etats =  etat_initial_du_determinise ; self.transitions = toutes_les_transitions_du_determinise
 		
 
+	def trouver_classe(self, dictionnaire, liste):
+
+		liste = tuple(liste)
+		for cle in dictionnaire.keys():
+			if all(element in cle for element in liste):
+				return cle
+		return None
+
+
+	def minimiser(self):
+		
+		if not self.est_deterministe():
+			self.determiniser()
+		
+		non_finaux  = [x for x in self.etats if x not in self.etats_finaux]
+		pie = [non_finaux, self.etats_finaux]
+		nouvelles_classes_equivalence = []
+
+		while pie != nouvelles_classes_equivalence:
+			
+			for classe_equivalence in pie:
+				if len(classe_equivalence)>1:
+					print("la calsse d'equivalence est ", classe_equivalence)
+					dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
+					dictionnaire_nouvelles_classes_equivalence_copy = str(dictionnaire_nouvelles_classes_equivalence)
+					
+					for symbole in self.alphabet:
+						
+						dictionnaire_nouvelles_classes_equivalence = eval(dictionnaire_nouvelles_classes_equivalence_copy)
+						print("le dictionnaire au debut est ", dictionnaire_nouvelles_classes_equivalence)
+						print("quand je suis su le symole ", symbole)
+						for etat in classe_equivalence:
+							print(f"etat {etat} de la classe {classe_equivalence}")
+							etat_arrive = self.f_transitions(etat, symbole)
+							print(f"etat {etat} de la classe {classe_equivalence} avec le smbole {symbole} me mene a {etat_arrive}")
+							
+							if len(etat_arrive) != 0:
+								classe = self.trouver_classe(dictionnaire_nouvelles_classes_equivalence, etat_arrive[0])
+								
+								dictionnaire_nouvelles_classes_equivalence[classe].append(etat)
+								print(f"comme cest non vide et que etat errive {etat_arrive} est dans la classe {classe_equivalence} alors j'ajoute l'etat {etat} dans le dictionnaire")
+								print(f" et le dictionnaire devient {dictionnaire_nouvelles_classes_equivalence}")
+							else:
+								
+								print(f"comme etat arrive est vide  je recommence")
+								break
+
+						
+						i = sum(bool(classe) for classe in dictionnaire_nouvelles_classes_equivalence.values())
+						if	i>1:
+							print("i est",i)
+							break
+						
+					
+					for classe in dictionnaire_nouvelles_classes_equivalence.values():
+						if classe:
+							nouvelles_classes_equivalence.append(classe)
+
+					print(pie, "SEP", classe_equivalence, "PIE ET CLASSE EQUIVALENCE")
+					ce_qui_etait_la_quon_a_pas_scinde  = [x for x in pie if x != classe_equivalence]
+					print(ce_qui_etait_la_quon_a_pas_scinde)
+					nouvelles_classes_equivalence.extend(ce_qui_etait_la_quon_a_pas_scinde)
+					
+					print(f"les nouvelles classes d'equivalences que je forme apres parcours de la classe {classe_equivalence} sont {nouvelles_classes_equivalence}")
+					if nouvelles_classes_equivalence != pie:
+						pie = nouvelles_classes_equivalence
+						nouvelles_classes_equivalence = []
+						break
+					else:
+						dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
+						break
+
+		print(f"les classes d'equivalences finales sont : {nouvelles_classes_equivalence}")
+			                
+		# Construction de l'automate minimisé
+		automate_minimise = Automate()
+
+		# Ajout de l'alphabet
+		for symbole in self.alphabet:
+			automate_minimise.ajouter_symbole(symbole)
+
+		# Parcours des nouvelles classes d'équivalence
+		for classe in pie:
+			nouvel_etat = automate_minimise.ajout_etat(["=".join(["=".join(etat) for etat in classe])])
+
+			# Si la classe contient un état initial, on le définit comme état initial dans l'automate minimisé
+			if any(etat in self.etats_initiaux for etat in classe):
+				automate_minimise.etats_initiaux = [nouvel_etat]
+
+			# Si la classe contient un état final, on le définit comme état final dans l'automate minimisé
+			if any(etat in self.etats_finaux for etat in classe):
+				automate_minimise.etats_finaux.append(nouvel_etat)
+
+			# Parcours de l'alphabet pour la construction des transitions
+			for symbole in self.alphabet:
+				etat_arrive = self.f_transitions(classe[0], symbole)  # On prend le premier état de la classe dequivalence
+				if etat_arrive:
+					nouvelle_classe = self.trouver_classe(dictionnaire_nouvelles_classes_equivalence, etat_arrive[0])
+					nouvel_etat_arrive = automate_minimise.ajout_etat(["=".join([etat for etat in nouvelle_classe])])
+					automate_minimise.ajout_transition(nouvel_etat, symbole, nouvel_etat_arrive)
+
+		# Copie des attributs non modifiés de l'automate original dans l'automate minimisé
+		automate_minimise.transitions = self.transitions
+
+		# Affectation de l'automate minimisé à l'automate actuel
+		self.alphabet = automate_minimise.alphabet
+		self.etats = automate_minimise.etats
+		self.etats_initiaux = automate_minimise.etats_initiaux
+		self.etats_finaux = automate_minimise.etats_finaux
+		self.transitions = automate_minimise.transitions
+
+
 	# fonction permettant de creer un automate
-	def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict):
+	def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict, type="unknow"):
 		"""
         creation d'un automate (definition du quintuplet)
         @param alphabet : l'alphabet de l'automate
@@ -208,6 +325,7 @@ class Automate():
 		self.etats_initiaux = etats_initiaux
 		self.etats_finaux = etats_finaux
 		self.transitions = transitions
+		self.type = type
 
 
 	def ajout_transition(self, etat_depart: list, symbole: str, etat_arrive: list) -> bool:
@@ -263,6 +381,10 @@ class Automate():
 
 		return "Cet automate est : " + ", ".join(nature)
 
+	
+	def verifier_etats(self):
+		pass
+
 
 	# Afficher de facon commode un automate
 	def __str__(self):
@@ -270,83 +392,281 @@ class Automate():
 		"""
 		Affichage de facon propre l'objet automate
 		"""
-		intermediaires = set([etat[0] for etat in self.etats]) - set([etat[0] for etat in self.etats_initiaux]) - set([etat[0] for etat in self.etats_finaux])
+		#intermediaires = set([etat[0] for etat in self.etats]) - set([etat[0] for etat in self.etats_initiaux]) - set([etat[0] for etat in self.etats_finaux])
+		#print(intermediaires)
 		ret =  self.nature() + "\n"
 		ret += "   - alphabet   : {" + ", ".join(self.alphabet) + "} \n"
-		ret += "   - initiaux      : " + ", ".join([init[0] for init in self.etats_initiaux]) + "\n"
-		ret += "   - etats intermediaires : " + ", ".join([init for init in intermediaires]) + "\n" 
-		ret += "   - finaux    : " + ", ".join([init[0] for init in self.etats_finaux]) + "\n"
+		ret += "   - initiaux      : " + ", ".join(["(%s)" % ",".join(init) for init in self.etats_initiaux]) + "\n"
+		#ret += "   - etats intermediaires : " + ", ".join([",".join(init) for init in intermediaires]) + "\n" 
+		ret += "   - finaux    : " + ", ".join(["(%s)" %",".join(init) for init in self.etats_finaux]) + "\n"
 		ret += "   - nombre d'etats : %d \n" % (len(self.etats))
 		ret += "   - transitions :\n"
 		for etat in self.etats:
-			ret += "       Partant de l'état (%s): \n" % (etat[0])
+			ret += "       Partant de l'état (%s): \n" % (",".join(etat))
 			for symbole in self.alphabet:
 				
 				if not len(self.f_transitions(etat,symbole)) == 0:
 					for dest in self.f_transitions(etat,symbole):
-						ret +=  "          en lisant le symbole (%s) on arrive à l'état (%s)\n" % (symbole, dest[0])
+						ret +=  "          en lisant le symbole (%s) on arrive à l'état (%s)\n" % (symbole, ",".join(dest))
 						
 		return ret
     
 
 	# surcharge de l'opération d'addition
-	def __add__(self, other):
+	def __add__(self, b):
 
-		alphabet = self.sup_doublon(self.alphabet+other.alphabet)
-		etats = self.etats+other.etats
-		print(etats)
-		etats_initiaux = [['init']]
-		etats.append(['init'])
-		print(etats_initiaux)
-		etats_finaux = self.etats_finaux+other.etats_finaux
-		print(etats_finaux)
-		transitions = {}
-		transitions.update(self.transitions)
-		transitions.update(other.transitions)
-		res = Automate()
-		res.create(alphabet, etats, etats_initiaux, etats_finaux, transitions)
+		"""
+		les noms des etats doivent etre differents
+		"""
+
+		if self.alphabet != b.alphabet:
+			print("les deux automates doivent avoir le meme alphabet")
+			exit()
+		
+		else:
+			tous_les_etats_de_union = []
+			toutes_les_transitions_union = {}
+
+			len_etat_1 = len(self.etats_initiaux)
+			etat_initial_union = []
+			for etat in self.etats_initiaux:
+				for num_etat in etat:
+					etat_initial_union.append(num_etat)
+
+			for etat in b.etats_initiaux:
+				for num_etat in etat:
+					etat_initial_union.append(num_etat)
+            
+			tous_les_etats_de_union.append(etat_initial_union)
+			etat_initial_union = [etat_initial_union]
+
+			for etat in tous_les_etats_de_union:
+				
+				for character in self.alphabet:
+					
+					len_etat_1 = 0
+					nouvel_etat_pour_charactere = []
+
+					for numero_etat in etat:
+						
+						
+						liste_des_etats = self.f_transitions([numero_etat], character)
+						if len(liste_des_etats) == 0:
+							liste_des_etats = b.f_transitions([numero_etat], character)
+
+						for e in liste_des_etats:
+							for num_etat in e:
+								if num_etat not in nouvel_etat_pour_charactere:
+									nouvel_etat_pour_charactere.append(num_etat)
+
+
+					if nouvel_etat_pour_charactere not in tous_les_etats_de_union:
+						if len(nouvel_etat_pour_charactere) != 0:
+							tous_les_etats_de_union.append(nouvel_etat_pour_charactere)	
+
+					if len(nouvel_etat_pour_charactere) != 0:
+						toutes_les_transitions_union[(tuple(etat), character)] = [
+							nouvel_etat_pour_charactere]
+
+			etats_finaux_de_union = []
+			for etat in tous_les_etats_de_union:
+				for etat_final in self.etats_finaux: 
+					for num_etat in etat_final:
+						if num_etat in etat:
+							if etat not in etats_finaux_de_union:
+								etats_finaux_de_union.append(etat)
+
+				for etat_final in b.etats_finaux: 
+					for num_etat in etat_final:
+						if num_etat in etat:
+							if etat not in etats_finaux_de_union:
+								etats_finaux_de_union.append(etat)
+
+			etats_finaux_de_union = etats_finaux_de_union
+			res = Automate()
+			res.create(self.alphabet, tous_les_etats_de_union, etat_initial_union, etats_finaux_de_union, toutes_les_transitions_union)
+			print(res)
 		return res
+	
+	def get_langage_commentaire(self):
+		"""
+		Langage commentaire est une fonction qui retourne un automate 
+        qui reconnais les commentaires d'un langage
+        """
+		A = Automate()
+		A.alphabet = self.alphabet
+		special_char = ["*", "/", "%"]
+		A.alphabet += special_char
+
+		A.ajout_etat(["0"], initial=True)
+		A.ajout_etat(["1"])
+		A.ajout_etat(["2"])
+		A.ajout_etat(["3"])
+		A.ajout_etat(["4"])
+		A.ajout_etat(["5"])
+		A.ajout_etat(["6"])
+		A.ajout_etat(["7",], final=True)
+
+        # debut du commentaierz*e
+		A.ajout_transition(["0"], "/", ["1"])
+		A.ajout_transition(["1"], "*", ["2"])
+
+		for symbole in A.alphabet:
+			if symbole not in special_char:
+				A.ajout_transition(["2"], symbole, ["2"])
+				A.ajout_transition(["5"], symbole, ["2"])
+
+        # echapement du commentaire
+		A.ajout_transition(["2"], "%", ["3"])
+		A.ajout_transition(["3"], "*", ["4"])
+		A.ajout_transition(["4"], "/", ["5"])
+
+        # fin du commentaire
+		A.ajout_transition(["2"], "*", ["6"])
+		A.ajout_transition(["6"], "/", ["7"])
+
+		return A
+
+
+alphabets = {
+    "int": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "boolean": ["T", "r", "u", "e", "F", "a", "l", "s", "e"],
+    "operators": ["+", "-", "*", "/", "="],
+    "letters": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
+    "conditions": ["if", "else", "for", "for_each", "while"]
+}
 
 
 ### TESTS
 
-# j'instancie la classe et je cree un automate (A)
-A = Automate()
+"""
+a = Automate()
 
-# exemple de ce à quoi doit ressembler le dictionnaire des transitions
-A_transitions = {
-			(('0',),'b'):[['0']], 
-			(('0',),'a'):[['1']],
-			(('1',),'b'):[['1']],
-			(('1',),'a'):[['2']],
-			#(('2',),'b'):[['2']],
-			(('2',),'b'):[['2'],['3']],
-			(('2',),'a'):[['0']],
-			(('3',),'b'):[['3']],
-			(('3',),'a'):[['0']]
-		}
+a.ajouter_symbole(symbole = "a")
 
-A.create(alphabet=['a','b'], etats=[['0'], ['1'], ['2'], ['3']], etats_initiaux=[['0']], etats_finaux=[['3']], transitions = A_transitions)
+a.ajouter_symbole(symbole = "b")
 
-# j'instancie la classe et je cree un automate B (la c'est comme un automate qu'on a minimisé)
-B = Automate()
+a.ajout_etat(etat = ['0'] , initial =True , final =True)
 
-# exemple de ce à quoi doit ressembler le dictionnaire des transitions
-B_transitions = {
-			(('1-6',),'b'):[['1-6']],
-			(('1-6',),'a'):[['2-7']], 
-			(('2-7',),'b'):[['2-7']],
-			(('2-7',),'a'):[['3-8']],
-			(('3-8',),'b'):[['3-8']],
-			(('3-8',),'a'):[['4-9']],
-			(('4-9',),'b'):[['4-9']],
-			(('4-9',),'a'):[['0-5']],
-			(('0-5',),'b'):[['0-5']]
-		}
+a.ajout_etat(etat = ['1'] , )
 
-B.create(alphabet=['a','b'], etats=[['1-6'], ['2-7'], ['3-8'], ['4-9'], ['0-5']], etats_initiaux=[['1-6']], etats_finaux=[['0-5']], transitions = B_transitions)
+a.ajout_transition( ['0'] , "a" , ['1'])
+a.ajout_transition( ['0'] , "b" , ['0'])
+a.ajout_transition( ['1'] , "b" , ['1'])
+a.ajout_transition( ['1'] , "a" , ['0'])
 
-#print(B)
-#print(A)
-#A.determinisation()
-#print(A)
+
+b = Automate()
+
+b.ajouter_symbole(symbole = "a")
+
+b.ajouter_symbole(symbole = "b")
+
+b.ajout_etat(etat = ['2'] , initial =True , final =True)
+
+b.ajout_etat(etat = ['3'] , )
+
+b.ajout_transition( ['2'] , "a" , ['2'])
+b.ajout_transition( ['2'] , "b" , ['3'])
+b.ajout_transition( ['3'] , "a" , ['3'])
+b.ajout_transition( ['3'] , "b" , ['2'])
+
+
+
+a = Automate()
+
+a.ajouter_symbole(symbole = "a")
+
+a.ajouter_symbole(symbole = "b")
+
+a.ajout_etat(etat = ['0'] , initial =True , final =True)
+
+a.ajout_etat(etat = ['1'] , )
+
+a.ajout_etat(etat = ['2'])
+
+a.ajout_transition( ['0'] , "b" , ['1'])
+a.ajout_transition( ['0'] , "a" , ['2'])
+a.ajout_transition( ['1'] , "b" , ['0'])
+a.ajout_transition( ['2'] , "a" , ['1'])
+
+"""
+b = Automate()
+
+b.ajouter_symbole(symbole = "a")
+
+b.ajouter_symbole(symbole = "b")
+
+b.ajout_etat(etat = ['3'] , initial =True , final =True)
+
+b.ajout_etat(etat = ['4'] , )
+
+b.ajout_transition( ['3'] , "a" , ['4'])
+b.ajout_transition( ['4'] , "b" , ['3'])
+
+a = Automate()
+
+a.ajouter_symbole(symbole = "a")
+
+a.ajouter_symbole(symbole = "b")
+
+a.ajout_etat(etat = ['0'], initial =True)
+a.ajout_etat(etat = ['1'])
+a.ajout_etat(etat = ['2'])
+a.ajout_etat(etat = ['3'])
+a.ajout_etat(etat = ['4'])
+a.ajout_etat(etat = ['5'], final =True)
+
+a.ajout_transition( ['0'] , "b" , ['3'])
+a.ajout_transition( ['0'] , "a" , ['1'])
+a.ajout_transition( ['1'] , "a" , ['1'])
+a.ajout_transition( ['1'] , "b" , ['2'])
+a.ajout_transition( ['2'] , "a" , ['2'])
+a.ajout_transition( ['2'] , "b" , ['5'])
+a.ajout_transition( ['3'] , "a" , ['3'])
+a.ajout_transition( ['3'] , "b" , ['4'])
+a.ajout_transition( ['4'] , "a" , ['4'])
+a.ajout_transition( ['4'] , "b" , ['5'])
+a.ajout_transition( ['5'] , "a" , ['5'])
+a.ajout_transition( ['5'] , "b" , ['5'])
+
+#print(a)
+#a.minimiser()
+
+c = Automate()
+
+c.ajouter_symbole(symbole = "a")
+
+c.ajouter_symbole(symbole = "b")
+c.ajouter_symbole(symbole = "c")
+
+c.ajout_etat(etat = ['0'], initial =True)
+c.ajout_etat(etat = ['1'])
+c.ajout_etat(etat = ['2'])
+c.ajout_etat(etat = ['3'])
+c.ajout_etat(etat = ['4'], final = True)
+c.ajout_etat(etat = ['5'], final =True)
+
+c.ajout_transition( ['0'] , "b" , ['0'])
+c.ajout_transition( ['0'] , "a" , ['2'])
+c.ajout_transition( ['0'] , "c" , ['1'])
+c.ajout_transition( ['1'] , "a" , ['3'])
+c.ajout_transition( ['1'] , "c" , ['3'])
+c.ajout_transition( ['1'] , "b" , ['1'])
+c.ajout_transition( ['2'] , "a" , ['2'])
+c.ajout_transition( ['2'] , "b" , ['4'])
+c.ajout_transition( ['2'] , "c" , ['3'])
+c.ajout_transition( ['3'] , "a" , ['3'])
+c.ajout_transition( ['3'] , "c" , ['3'])
+c.ajout_transition( ['3'] , "b" , ['5'])
+c.ajout_transition( ['4'] , "a" , ['4'])
+c.ajout_transition( ['4'] , "b" , ['4'])
+c.ajout_transition( ['4'] , "c" , ['5'])
+c.ajout_transition( ['5'] , "a" , ['5'])
+c.ajout_transition( ['5'] , "b" , ['5'])
+c.ajout_transition( ['5'] , "c" , ['5'])
+
+
+print(a)
+d = a+b
+print(d)
