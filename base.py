@@ -382,8 +382,40 @@ class Automate():
 		return "Cet automate est : " + ", ".join(nature)
 
 	
-	def verifier_etats(self):
-		pass
+	def renommer_etat(self, ancien_nom:str, nouveau_nom:str):
+
+		self.etats[self.etats.index([ancien_nom])] = [nouveau_nom]
+
+		if [ancien_nom] in self.etats_initiaux:
+			self.etats_initiaux[self.etats_initiaux.index([ancien_nom])] = [nouveau_nom]
+
+		if [ancien_nom] in self.etats_finaux:
+			self.etats_finaux[self.etats_finaux.index([ancien_nom])] = [nouveau_nom]
+
+		transitions_copy = list(self.transitions.keys())	
+		for transition in transitions_copy:
+			etat_origine, symbole = transition 
+			etats_destinations = self.transitions[transition]
+
+			if etat_origine == (ancien_nom,):
+				nouveau_etat_origine = (nouveau_nom,)
+			else:
+				nouveau_etat_origine = etat_origine
+			
+			self.transitions[nouveau_etat_origine, symbole] = etats_destinations
+
+			del self.transitions[transition]
+
+			nouveaux_etats_destinations = []
+			for etat in etats_destinations:
+				if etat == [ancien_nom]:
+					nouveau_etat = [nouveau_nom]
+				else:
+					nouveau_etat = etat
+				
+				nouveaux_etats_destinations.append(nouveau_etat)
+
+			self.transitions[nouveau_etat_origine, symbole] = nouveaux_etats_destinations
 
 
 	# Afficher de facon commode un automate
@@ -415,78 +447,72 @@ class Automate():
 	# surcharge de l'opération d'addition
 	def __add__(self, b):
 
-		"""
-		les noms des etats doivent etre differents
-		"""
+		for etat in b.etats:
+			if etat in self.etats:
+				b.renommer_etat(",".join(etat), ",".join(etat) + "-2")
 
-		if self.alphabet != b.alphabet:
-			print("les deux automates doivent avoir le meme alphabet")
-			exit()
+		tous_les_etats_de_union = []
+		toutes_les_transitions_union = {}
+		nouvel_alphabet = set(self.alphabet + b.alphabet)
+
 		
-		else:
-			tous_les_etats_de_union = []
-			toutes_les_transitions_union = {}
+		etat_initial_union = []
+		for etat in self.etats_initiaux:
+			for num_etat in etat:
+				etat_initial_union.append(num_etat)
 
-			len_etat_1 = len(self.etats_initiaux)
-			etat_initial_union = []
-			for etat in self.etats_initiaux:
-				for num_etat in etat:
-					etat_initial_union.append(num_etat)
+		for etat in b.etats_initiaux:
+			for num_etat in etat:
+				etat_initial_union.append(num_etat)
+		
+		tous_les_etats_de_union.append(etat_initial_union)
+		etat_initial_union = [etat_initial_union]
 
-			for etat in b.etats_initiaux:
-				for num_etat in etat:
-					etat_initial_union.append(num_etat)
-            
-			tous_les_etats_de_union.append(etat_initial_union)
-			etat_initial_union = [etat_initial_union]
-
-			for etat in tous_les_etats_de_union:
+		for etat in tous_les_etats_de_union:
+			
+			for character in nouvel_alphabet:
 				
-				for character in self.alphabet:
+				nouvel_etat_pour_charactere = []
+
+				for numero_etat in etat:
 					
-					len_etat_1 = 0
-					nouvel_etat_pour_charactere = []
+					liste_des_etats = self.f_transitions([numero_etat], character)
+					if len(liste_des_etats) == 0:
+						liste_des_etats = b.f_transitions([numero_etat], character)
 
-					for numero_etat in etat:
-						
-						
-						liste_des_etats = self.f_transitions([numero_etat], character)
-						if len(liste_des_etats) == 0:
-							liste_des_etats = b.f_transitions([numero_etat], character)
-
-						for e in liste_des_etats:
-							for num_etat in e:
-								if num_etat not in nouvel_etat_pour_charactere:
-									nouvel_etat_pour_charactere.append(num_etat)
+					for e in liste_des_etats:
+						for num_etat in e:
+							if num_etat not in nouvel_etat_pour_charactere:
+								nouvel_etat_pour_charactere.append(num_etat)
 
 
-					if nouvel_etat_pour_charactere not in tous_les_etats_de_union:
-						if len(nouvel_etat_pour_charactere) != 0:
-							tous_les_etats_de_union.append(nouvel_etat_pour_charactere)	
-
+				if nouvel_etat_pour_charactere not in tous_les_etats_de_union:
 					if len(nouvel_etat_pour_charactere) != 0:
-						toutes_les_transitions_union[(tuple(etat), character)] = [
-							nouvel_etat_pour_charactere]
+						tous_les_etats_de_union.append(nouvel_etat_pour_charactere)	
 
-			etats_finaux_de_union = []
-			for etat in tous_les_etats_de_union:
-				for etat_final in self.etats_finaux: 
-					for num_etat in etat_final:
-						if num_etat in etat:
-							if etat not in etats_finaux_de_union:
-								etats_finaux_de_union.append(etat)
+				if len(nouvel_etat_pour_charactere) != 0:
+					toutes_les_transitions_union[(tuple(etat), character)] = [
+						nouvel_etat_pour_charactere]
 
-				for etat_final in b.etats_finaux: 
-					for num_etat in etat_final:
-						if num_etat in etat:
-							if etat not in etats_finaux_de_union:
-								etats_finaux_de_union.append(etat)
+		etats_finaux_de_union = []
+		for etat in tous_les_etats_de_union:
+			for etat_final in self.etats_finaux: 
+				for num_etat in etat_final:
+					if num_etat in etat:
+						if etat not in etats_finaux_de_union:
+							etats_finaux_de_union.append(etat)
 
-			etats_finaux_de_union = etats_finaux_de_union
-			res = Automate()
-			res.create(self.alphabet, tous_les_etats_de_union, etat_initial_union, etats_finaux_de_union, toutes_les_transitions_union)
-			print(res)
+			for etat_final in b.etats_finaux: 
+				for num_etat in etat_final:
+					if num_etat in etat:
+						if etat not in etats_finaux_de_union:
+							etats_finaux_de_union.append(etat)
+
+		etats_finaux_de_union = etats_finaux_de_union
+		res = Automate()
+		res.create(nouvel_alphabet, tous_les_etats_de_union, etat_initial_union, etats_finaux_de_union, toutes_les_transitions_union)
 		return res
+
 	
 	def get_langage_commentaire(self):
 		"""
@@ -539,7 +565,7 @@ alphabets = {
 
 ### TESTS
 
-"""
+
 a = Automate()
 
 a.ajouter_symbole(symbole = "a")
@@ -562,17 +588,17 @@ b.ajouter_symbole(symbole = "a")
 
 b.ajouter_symbole(symbole = "b")
 
-b.ajout_etat(etat = ['2'] , initial =True , final =True)
+b.ajout_etat(etat = ['0'] , initial =True , final =True)
 
-b.ajout_etat(etat = ['3'] , )
+b.ajout_etat(etat = ['1'] , )
 
-b.ajout_transition( ['2'] , "a" , ['2'])
-b.ajout_transition( ['2'] , "b" , ['3'])
-b.ajout_transition( ['3'] , "a" , ['3'])
-b.ajout_transition( ['3'] , "b" , ['2'])
+b.ajout_transition( ['0'] , "a" , ['0'])
+b.ajout_transition( ['0'] , "b" , ['1'])
+b.ajout_transition( ['1'] , "a" , ['1'])
+b.ajout_transition( ['1'] , "b" , ['0'])
 
 
-
+"""
 a = Automate()
 
 a.ajouter_symbole(symbole = "a")
@@ -590,6 +616,7 @@ a.ajout_transition( ['0'] , "a" , ['2'])
 a.ajout_transition( ['1'] , "b" , ['0'])
 a.ajout_transition( ['2'] , "a" , ['1'])
 
+"""
 """
 b = Automate()
 
@@ -665,7 +692,7 @@ c.ajout_transition( ['4'] , "c" , ['5'])
 c.ajout_transition( ['5'] , "a" , ['5'])
 c.ajout_transition( ['5'] , "b" , ['5'])
 c.ajout_transition( ['5'] , "c" , ['5'])
-
+"""
 
 print(a)
 d = a+b
