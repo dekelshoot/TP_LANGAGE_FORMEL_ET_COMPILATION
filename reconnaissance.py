@@ -9,13 +9,14 @@ def reconnaissance(A: Automate, mot: str) -> bool:
         etat = A.etats_initiaux[0]
         for char in mot:
             if char not in A.alphabet:
-                return False
+                return [False, "unknown"]
+            print(A.f_transitions(etat, char))
             etat = A.f_transitions(etat, char)[0]
             if len(etat) == 0 or etat == ['puit']:
-                return False
+                return [False, "unknown"]
         if etat in A.etats_finaux:
-            return True
-        return False
+            return [True, A.type]
+        return [False, "unknown"]
 
     else:
         pile = []
@@ -26,7 +27,7 @@ def reconnaissance(A: Automate, mot: str) -> bool:
             etat_actuel, indice_actuel_du_mot = pile.pop()
             if indice_actuel_du_mot == len(mot):
                 if etat_actuel in A.etats_finaux:
-                    return True
+                    return [True, A.type]
             else:
                 etats_possibles_pour_cette_transition = A.f_transitions(
                     etat_actuel, mot[indice_actuel_du_mot])
@@ -34,7 +35,7 @@ def reconnaissance(A: Automate, mot: str) -> bool:
                     if len(chaque_etat) != 0 and chaque_etat != ['puit']:
                         pile.append((chaque_etat, indice_actuel_du_mot+1))
 
-        return False
+        return [False, "unknown"]
 
 
 A = Automate()

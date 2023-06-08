@@ -24,11 +24,6 @@ def reconnaissance_texte(A: Automate, texte: str, sep=" ") -> list:
 
     Matrice_reconnaissance = []
     for token in tokens:
-        Matrice_reconnaissance.append([token, reconnaissance(A, token)])
+        Matrice_reconnaissance.append([token]+reconnaissance(A, token))
 
     return Matrice_reconnaissance
-
-
-texte = " aa aab ab bba je suis Dekel Shoot   "
-A = util.read("AF.af")
-print(reconnaissance_texte(A=A, texte=texte))

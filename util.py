@@ -108,4 +108,4 @@ def to_png(A: Automate, filename=None, name="Graph"):
         file.write(to_dot(A, name))
 
     call(("dot -Tpng " + tmp_file + "  -o " + filename).split(" "))
-    # call(("rm " + tmp_file).split(" "))
+    call(("rm " + tmp_file).split(" "))

@@ -56,23 +56,3 @@ def determinisation(A: Automate) -> Automate:
                        etats_finaux=etats_finaux_du_determinise, transitions=toutes_les_transitions_du_determinise)
 
         return A_prime
-
-
-A = Automate()
-
-# exemple de ce à quoi doit ressembler le dictionnaire des transitions
-A_transitions = {
-			((0,),'b'):[[0]], 
-			((0,),'a'):[[1]],
-			((1,),'b'):[[1]],
-			((1,),'a'):[[2]],
-			#((2,),'b'):[[2]],
-			((2,),'b'):[[2],[3]],
-			((2,),'a'):[[0]],
-			((3,),'b'):[[3]],
-			((3,),'a'):[[0]]
-		}
-
-A.create(alphabet=['a','b'], etats=[['0'], ['1'], ['2'], ['3']], etats_initiaux=[['0']], etats_finaux=[['3']], transitions = A_transitions)
-
-print(A) 
