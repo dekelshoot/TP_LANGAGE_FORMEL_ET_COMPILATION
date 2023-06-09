@@ -136,67 +136,73 @@ class Automate():
             return False
         return True
 
-
     # determinisation d'un automate
+
     def determiniser(self):
 
         if self.est_epsilone_non_deterministe:
             self.passer_de_epsilonne_afn_a_afn()
 
         if self.est_non_deterministe():
-			
-            tous_les_etats_du_determinise = []	
-            toutes_les_transitions_du_determinise = {}	
+
+            tous_les_etats_du_determinise = []
+            toutes_les_transitions_du_determinise = {}
 
             etat_initial_du_determinise = []
             for etat in self.etats_initiaux:
                 for num_etat in etat:
                     etat_initial_du_determinise.append(num_etat)
 
-			#print(f"l'etat initial du determinise est : {etat_initial_du_determinise}")
+                    # print(f"l'etat initial du determinise est : {etat_initial_du_determinise}")
             tous_les_etats_du_determinise.append(etat_initial_du_determinise)
             etat_initial_du_determinise = [etat_initial_du_determinise]
-			#print(f"tous les etats de l'automate a l'heure actuelle {tous_les_etats_du_determinise}")
+            # print(f"tous les etats de l'automate a l'heure actuelle {tous_les_etats_du_determinise}")
 
             for etat in tous_les_etats_du_determinise:
-				#print(f"Avec l'etat {etat} ")
+                # print(f"Avec l'etat {etat} ")
                 for character in self.alphabet:
                     nouvel_etat_pour_charactere = []
-					#print(f"Avec le symbole {character} ")
+                    # print(f"Avec le symbole {character} ")
                     for numero_etat in etat:
-						
-                        liste_des_etats = self.f_transitions([numero_etat], character)
-						
-						#print(f"de l'etat {numero_etat} de la liste {etat} avec le symbole {character} on arrive a {liste_des_etats} ")
 
-                        for e in liste_des_etats: 
+                        liste_des_etats = self.f_transitions(
+                            [numero_etat], character)
+
+                        # print(f"de l'etat {numero_etat} de la liste {etat} avec le symbole {character} on arrive a {liste_des_etats} ")
+
+                        for e in liste_des_etats:
                             for num_etat in e:
-                                if num_etat not in nouvel_etat_pour_charactere: 
-                                    nouvel_etat_pour_charactere.append(num_etat)
+                                if num_etat not in nouvel_etat_pour_charactere:
+                                    nouvel_etat_pour_charactere.append(
+                                        num_etat)
 
-						#print(f"Le nouvel etat 	qu'on forme alors avec {etat} et {character} est {nouvel_etat_pour_charactere}")
+                                    # print(f"Le nouvel etat 	qu'on forme alors avec {etat} et {character} est {nouvel_etat_pour_charactere}")
 
                     if nouvel_etat_pour_charactere not in tous_les_etats_du_determinise:
                         if len(nouvel_etat_pour_charactere) != 0:
-                            tous_les_etats_du_determinise.append(nouvel_etat_pour_charactere)
-							#print(f"Comme {nouvel_etat_pour_charactere} n'est pas encore dans la liste des etats, je l'ajoute et la liste des etats devient {tous_les_etats_du_determinise} ")
+                            tous_les_etats_du_determinise.append(
+                                nouvel_etat_pour_charactere)
+                            # print(f"Comme {nouvel_etat_pour_charactere} n'est pas encore dans la liste des etats, je l'ajoute et la liste des etats devient {tous_les_etats_du_determinise} ")
 
-                    if len(nouvel_etat_pour_charactere) != 0:	
-                        toutes_les_transitions_du_determinise[(tuple(etat),character)]=[nouvel_etat_pour_charactere]
-						#print(f"J'ajoute donc aussi la transition allant de {etat} avec {character}, pour aller a {nouvel_etat_pour_charactere} ")
-						#print(f"l'ensemble des transitions de l'automate est donc deja {toutes_les_transitions_du_determinise}")
+                    if len(nouvel_etat_pour_charactere) != 0:
+                        toutes_les_transitions_du_determinise[(tuple(etat), character)] = [
+                            nouvel_etat_pour_charactere]
+                        # print(f"J'ajoute donc aussi la transition allant de {etat} avec {character}, pour aller a {nouvel_etat_pour_charactere} ")
+                        # print(f"l'ensemble des transitions de l'automate est donc deja {toutes_les_transitions_du_determinise}")
 
             etats_finaux_du_determinise = []
             for etat in tous_les_etats_du_determinise:
                 for etat_final in self.etats_finaux:
                     for num_etat in etat_final:
                         if num_etat in etat:
-                            if etat not in etats_finaux_du_determinise: etats_finaux_du_determinise.append(etat)
+                            if etat not in etats_finaux_du_determinise:
+                                etats_finaux_du_determinise.append(etat)
             etats_finaux_du_determinise = etats_finaux_du_determinise
-			
-            self.etats_initiaux = etat_initial_du_determinise ; self.etats_finaux = etats_finaux_du_determinise 
-            self.etats =  tous_les_etats_du_determinise ; self.transitions = toutes_les_transitions_du_determinise
 
+            self.etats_initiaux = etat_initial_du_determinise
+            self.etats_finaux = etats_finaux_du_determinise
+            self.etats = tous_les_etats_du_determinise
+            self.transitions = toutes_les_transitions_du_determinise
 
     def trouver_classe(self, dictionnaire, liste):
 
@@ -219,7 +225,6 @@ class Automate():
                 self.renommer_etat(",".join(etat), str(nb_etats))
             print("self")
             print(self)"""
-            
 
         non_finaux = [x for x in self.etats if x not in self.etats_finaux]
         pie = [non_finaux, self.etats_finaux]
@@ -232,13 +237,15 @@ class Automate():
                     print("je suis dans le cas boquant")
                     nouvelles_classes_equivalence = pie
                     print(pie, "pie")
-                    print(nouvelles_classes_equivalence, "nouvelles classes d'equivalence")
-                    dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
+                    print(nouvelles_classes_equivalence,
+                          "nouvelles classes d'equivalence")
+                    dictionnaire_nouvelles_classes_equivalence = {tuple(
+                        element for sous_liste in classe for element in sous_liste): [] for classe in pie}
                     break
 
                 for classe_equivalence in pie:
                     if len(classe_equivalence) > 1:
-                        #print("la calsse d'equivalence est ", classe_equivalence)
+                        # print("la calsse d'equivalence est ", classe_equivalence)
                         dictionnaire_nouvelles_classes_equivalence = {tuple(
                             element for sous_liste in classe for element in sous_liste): [] for classe in pie}
                         dictionnaire_nouvelles_classes_equivalence_copy = str(
@@ -259,7 +266,8 @@ class Automate():
                                     classe = self.trouver_classe(
                                         dictionnaire_nouvelles_classes_equivalence, etat_arrive[0])
 
-                                    dictionnaire_nouvelles_classes_equivalence[classe].append(etat)
+                                    dictionnaire_nouvelles_classes_equivalence[classe].append(
+                                        etat)
                                     # print(f"comme cest non vide et que etat errive {etat_arrive} est dans la classe {classe_equivalence} alors j'ajoute l'etat {etat} dans le dictionnaire")
                                     # print(f" et le dictionnaire devient {dictionnaire_nouvelles_classes_equivalence}")
                                 else:
@@ -294,7 +302,8 @@ class Automate():
                                 element for sous_liste in classe for element in sous_liste): [] for classe in pie}
                             break
 
-            print(f"les classes d'equivalences finales sont : {nouvelles_classes_equivalence}")
+            print(
+                f"les classes d'equivalences finales sont : {nouvelles_classes_equivalence}")
 
             # Construction de l'automate minimisé
             automate_minimise = Automate()
@@ -336,13 +345,11 @@ class Automate():
             self.etats_finaux = automate_minimise.etats_finaux
             self.transitions = automate_minimise.transitions
 
-    
-    def recuperer_epsilonne_fermeture(self, etat:list) -> list:
-
+    def recuperer_epsilonne_fermeture(self, etat: list) -> list:
         """
-		fonction permettant d'avoir les epsilones fermetures d'un etat
-		@param etat : l'etat dont on veut son epsilonne fermeture
-		"""
+                fonction permettant d'avoir les epsilones fermetures d'un etat
+                @param etat : l'etat dont on veut son epsilonne fermeture
+                """
         if not self.est_epsilone_non_deterministe():
             return []
         else:
@@ -350,11 +357,11 @@ class Automate():
             symbole = 'ε'
             for etat in liste_epsilonnes_fermetures:
                 for trans in self.transitions:
-                   if list(trans[0]) == etat and trans[1] == symbole:
-                        liste_epsilonnes_fermetures.extend(self.transitions[trans])
+                    if list(trans[0]) == etat and trans[1] == symbole:
+                        liste_epsilonnes_fermetures.extend(
+                            self.transitions[trans])
             return liste_epsilonnes_fermetures
 
-	
     def passer_de_epsilonne_afn_a_afn(self):
 
         if not self.est_non_deterministe():
@@ -365,22 +372,22 @@ class Automate():
                     etats_pour_lesquelles_je_dois_creer_de_nouvelles_transitions = []
                     if symbole != 'ε':
                         for e_etat in e_fermeture_de_etat:
-                            etat_arrives = self.f_transitions(e_etat,symbole)
+                            etat_arrives = self.f_transitions(e_etat, symbole)
                             if etat_arrives:
-                                etats_pour_lesquelles_je_dois_creer_de_nouvelles_transitions.extend(etat_arrives)
+                                etats_pour_lesquelles_je_dois_creer_de_nouvelles_transitions.extend(
+                                    etat_arrives)
                         for ces_etats in etats_pour_lesquelles_je_dois_creer_de_nouvelles_transitions:
                             self.ajout_transition(etat, symbole, ces_etats)
-			
+
             symbole = 'ε'
-            transitions_copy = list(self.transitions.keys())	
+            transitions_copy = list(self.transitions.keys())
             for trans in transitions_copy:
                 etat, symbole_transition = trans
                 if symbole_transition == symbole:
-                   del self.transitions[trans]
+                    del self.transitions[trans]
 
             if symbole in self.alphabet:
                 self.alphabet.remove(symbole)
-
 
     def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict, type="unknow"):
         """
@@ -436,7 +443,6 @@ class Automate():
     def ajout_type(self, type: str):
 
         self.type = type
-    
 
     def nature(self) -> str:
 
@@ -512,12 +518,12 @@ class Automate():
         ret += "   - alphabet   : {" + ", ".join(self.alphabet) + "} \n"
         ret += "   - initiaux      : " + \
             ", ".join(["(%s)" % ",".join(init)
-                        for init in self.etats_initiaux]) + "\n"
+                       for init in self.etats_initiaux]) + "\n"
         ret += "   - etats intermediaires : " + \
             ", ".join(f"({element})" for element in intermediaires) + "\n"
         ret += "   - finaux    : " + \
             ", ".join(["(%s)" % ",".join(init)
-                        for init in self.etats_finaux]) + "\n"
+                       for init in self.etats_finaux]) + "\n"
         ret += "   - nombre d'etats : %d \n" % (len(self.etats))
         ret += "   - transitions :\n"
         for etat in self.etats:
@@ -676,23 +682,3 @@ def normalise_Automate(A):
     A.etats = etats
 
     return A
-
-"""
-A = Automate()
-
-# exemple de ce à quoi doit ressembler le dictionnaire des transitions
-A_transitions = {
-			(('1',),'a'):[['2'],['3']], 
-			(('2',),'a'):[['4']],
-			(('3',),'a'):[['3']],
-			(('3',),'b'):[['4']],
-			(('4',),'b'):[['2']]
-		}
-
-A.create(alphabet=['a','b'], etats=[['4'], ['1'], ['2'], ['3']], etats_initiaux=[['1']], etats_finaux=[['4']], transitions = A_transitions)
-
-print(A) 
-A.minimiser()
-print(A)
-"""
-
