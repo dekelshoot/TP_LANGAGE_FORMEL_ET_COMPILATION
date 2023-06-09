@@ -1,0 +1,23 @@
+a = Automate()
+
+a.ajout_type("operator")
+
+a.ajouter_symbole(symbole = "+")
+
+a.ajouter_symbole(symbole = "-")
+
+a.ajouter_symbole(symbole = "*")
+
+a.ajouter_symbole(symbole = "/")
+
+a.ajouter_symbole(symbole = "=")
+
+a.ajout_etat(etat = ['0'] , initial =True)
+
+a.ajout_etat(etat = ['1'] , final =True)
+
+a.ajout_transition( ['0'] , "+" , ['1'])
+a.ajout_transition( ['0'] , "-" , ['1'])
+a.ajout_transition( ['0'] , "*" , ['1'])
+a.ajout_transition( ['0'] , "/" , ['1'])
+a.ajout_transition( ['0'] , "=" , ['1'])

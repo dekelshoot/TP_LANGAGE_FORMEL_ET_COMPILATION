@@ -24,6 +24,8 @@ def save(af: Automate, filename):
         l'automate sera sauvé."""
     txt = "a = Automate()\n\n"
 
+    txt += "a.ajout_type(\"" + af.type + "\")\n\n"
+
     # Ajout de l'alphabet
     for symbole in af.alphabet:
         txt += "a.ajouter_symbole(symbole = \"" + symbole + "\")\n\n"

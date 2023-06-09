@@ -1,0 +1,48 @@
+a = Automate()
+
+a.ajout_type("int")
+
+a.ajouter_symbole(symbole = "0")
+
+a.ajouter_symbole(symbole = "1")
+
+a.ajouter_symbole(symbole = "2")
+
+a.ajouter_symbole(symbole = "3")
+
+a.ajouter_symbole(symbole = "4")
+
+a.ajouter_symbole(symbole = "5")
+
+a.ajouter_symbole(symbole = "6")
+
+a.ajouter_symbole(symbole = "7")
+
+a.ajouter_symbole(symbole = "8")
+
+a.ajouter_symbole(symbole = "9")
+
+a.ajout_etat(etat = ['0'] , initial =True)
+
+a.ajout_etat(etat = ['1'] , final =True)
+
+a.ajout_transition( ['0'] , "0" , ['1'])
+a.ajout_transition( ['0'] , "1" , ['1'])
+a.ajout_transition( ['0'] , "2" , ['1'])
+a.ajout_transition( ['0'] , "3" , ['1'])
+a.ajout_transition( ['0'] , "4" , ['1'])
+a.ajout_transition( ['0'] , "5" , ['1'])
+a.ajout_transition( ['0'] , "6" , ['1'])
+a.ajout_transition( ['0'] , "7" , ['1'])
+a.ajout_transition( ['0'] , "8" , ['1'])
+a.ajout_transition( ['0'] , "9" , ['1'])
+a.ajout_transition( ['1'] , "0" , ['1'])
+a.ajout_transition( ['1'] , "1" , ['1'])
+a.ajout_transition( ['1'] , "2" , ['1'])
+a.ajout_transition( ['1'] , "3" , ['1'])
+a.ajout_transition( ['1'] , "4" , ['1'])
+a.ajout_transition( ['1'] , "5" , ['1'])
+a.ajout_transition( ['1'] , "6" , ['1'])
+a.ajout_transition( ['1'] , "7" , ['1'])
+a.ajout_transition( ['1'] , "8" , ['1'])
+a.ajout_transition( ['1'] , "9" , ['1'])

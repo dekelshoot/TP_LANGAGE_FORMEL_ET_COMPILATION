@@ -1,5 +1,5 @@
 # classe automate
-from util import to_png, save
+from util import to_png, save, read
 from Automate import Automate
 
 
@@ -263,6 +263,7 @@ def create_automate_complementaire():
 
     # automate reconnaissant les entiers
     Automate_int = Automate()
+    Automate_int.ajout_type("int")
     Automate_int.alphabet = alphabets["int"]
     Automate_int.type = "int"
     Automate_int.ajout_etat(["0"], initial=True)
@@ -275,6 +276,7 @@ def create_automate_complementaire():
 
     # automate reconnaissant les entiers
     Automate_variable = Automate()
+    Automate_variable.ajout_type("variable")
     Automate_variable.alphabet = alphabets["variables"]
     Automate_variable.type = "variable"
     Automate_variable.ajout_etat(["0"], initial=True)
@@ -287,6 +289,7 @@ def create_automate_complementaire():
 
     # automate reconnaissant un opérateur
     Automate_operator = Automate()
+    Automate_operator.ajout_type("operator")
     Automate_operator.alphabet = alphabets["operators"]
     Automate_operator.type = "operator"
     Automate_operator.ajout_etat(["0"], initial=True)
@@ -298,6 +301,7 @@ def create_automate_complementaire():
 
     # automate reconnaissant un conditions
     Automate_condition = Automate()
+    Automate_condition.ajout_type("condition")
     Automate_condition.alphabet = alphabets["conditions"]
     Automate_condition.type = "condition"
     Automate_condition.ajout_etat(["0"], initial=True)
@@ -318,6 +322,7 @@ def create_automate_complementaire():
 
     # automate reconnaissant un boucle
     Automate_loop = Automate()
+    Automate_loop.ajout_type("loop")
     Automate_loop.alphabet = alphabets["loops"]
     Automate_loop.type = "loop"
     Automate_loop.ajout_etat(["0"], initial=True)
@@ -341,6 +346,34 @@ def create_automate_complementaire():
     to_png(Automate_loop, "Automate_loop.png")
 
 
+def determine_type(res: list):
+    A = read("Automate_loop.af")
+    B = read("Automate_condition.af")
+    C = read("Automate_int.af")
+    D = read("Automate_variable.af")
+    E = read("Automate_operator.af")
+
+    for result in res:
+        if reconnaissance_mot(A, result[0]):
+            result[2] = A.type
+        else:
+            if reconnaissance_mot(B, result[0]):
+                result[2] = B.type
+            else:
+                if reconnaissance_mot(C, result[0]):
+                    result[2] = C.type
+                else:
+                    if reconnaissance_mot(D, result[0]):
+                        result[2] = D.type
+                    else:
+                        if reconnaissance_mot(E, result[0]):
+                            result[2] = E.type
+                        else:
+                            if result[0] not in alphabets["reserved_words"]:
+                                result[2] = "variable"
+    return res
+
+
 # alphabet de qui sera utilisé dans tous le devoir
 alphabets = {
     "int": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
@@ -348,5 +381,6 @@ alphabets = {
     "operators": ["+", "-", "*", "/", "="],
     "variables": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
     "conditions": ["i", "f", "e", "l", "s", "e"],
-    "loops": ["f", "o", "r",  "w", "h", "i", "l", "e"]
+    "loops": ["f", "o", "r",  "w", "h", "i", "l", "e"],
+    "reserved_words": ["then", "in",]
 }

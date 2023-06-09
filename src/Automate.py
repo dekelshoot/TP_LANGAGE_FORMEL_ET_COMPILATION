@@ -373,6 +373,9 @@ creation d'un automate (definition du quintuplet)
             print("transition deja presente dans l'automate")
             return False
 
+    # Ajout du type a l'automate
+    def ajout_type(self, type: str):
+        self.type = type
     # fonction qui retourne toutes les natures d'un automate
 
     def nature(self) -> str:

@@ -1,0 +1,125 @@
+a = Automate()
+
+a.ajout_type("unknow")
+
+a.ajouter_symbole(symbole = "9")
+
+a.ajouter_symbole(symbole = "4")
+
+a.ajouter_symbole(symbole = "1")
+
+a.ajouter_symbole(symbole = "/")
+
+a.ajouter_symbole(symbole = "s")
+
+a.ajouter_symbole(symbole = "i")
+
+a.ajouter_symbole(symbole = "6")
+
+a.ajouter_symbole(symbole = "-")
+
+a.ajouter_symbole(symbole = "8")
+
+a.ajouter_symbole(symbole = "e")
+
+a.ajouter_symbole(symbole = "2")
+
+a.ajouter_symbole(symbole = "*")
+
+a.ajouter_symbole(symbole = "7")
+
+a.ajouter_symbole(symbole = "h")
+
+a.ajouter_symbole(symbole = "f")
+
+a.ajouter_symbole(symbole = "=")
+
+a.ajouter_symbole(symbole = "l")
+
+a.ajouter_symbole(symbole = "o")
+
+a.ajouter_symbole(symbole = "3")
+
+a.ajouter_symbole(symbole = "r")
+
+a.ajouter_symbole(symbole = "w")
+
+a.ajouter_symbole(symbole = "+")
+
+a.ajouter_symbole(symbole = "0")
+
+a.ajouter_symbole(symbole = "5")
+
+a.ajout_etat(etat = ['0'] , initial =True)
+
+a.ajout_etat(etat = ['1'] , final =True)
+
+a.ajout_etat(etat = ['2'] , final =True)
+
+a.ajout_etat(etat = ['3'] , )
+
+a.ajout_etat(etat = ['4'] , )
+
+a.ajout_etat(etat = ['5'] , )
+
+a.ajout_etat(etat = ['6'] , )
+
+a.ajout_etat(etat = ['7'] , final =True)
+
+a.ajout_etat(etat = ['8'] , )
+
+a.ajout_etat(etat = ['9'] , )
+
+a.ajout_etat(etat = ['10'] , )
+
+a.ajout_etat(etat = ['11'] , )
+
+a.ajout_etat(etat = ['12'] , final =True)
+
+a.ajout_etat(etat = ['13'] , )
+
+a.ajout_etat(etat = ['14'] , final =True)
+
+a.ajout_etat(etat = ['15'] , )
+
+a.ajout_etat(etat = ['16'] , final =True)
+
+a.ajout_transition( ['0'] , "9" , ['1'])
+a.ajout_transition( ['0'] , "4" , ['1'])
+a.ajout_transition( ['0'] , "1" , ['1'])
+a.ajout_transition( ['0'] , "/" , ['2'])
+a.ajout_transition( ['0'] , "i" , ['3'])
+a.ajout_transition( ['0'] , "6" , ['1'])
+a.ajout_transition( ['0'] , "-" , ['2'])
+a.ajout_transition( ['0'] , "8" , ['1'])
+a.ajout_transition( ['0'] , "e" , ['4'])
+a.ajout_transition( ['0'] , "2" , ['1'])
+a.ajout_transition( ['0'] , "*" , ['2'])
+a.ajout_transition( ['0'] , "7" , ['1'])
+a.ajout_transition( ['0'] , "f" , ['5'])
+a.ajout_transition( ['0'] , "=" , ['2'])
+a.ajout_transition( ['0'] , "3" , ['1'])
+a.ajout_transition( ['0'] , "w" , ['6'])
+a.ajout_transition( ['0'] , "+" , ['2'])
+a.ajout_transition( ['0'] , "0" , ['1'])
+a.ajout_transition( ['0'] , "5" , ['1'])
+a.ajout_transition( ['1'] , "9" , ['1'])
+a.ajout_transition( ['1'] , "4" , ['1'])
+a.ajout_transition( ['1'] , "1" , ['1'])
+a.ajout_transition( ['1'] , "6" , ['1'])
+a.ajout_transition( ['1'] , "8" , ['1'])
+a.ajout_transition( ['1'] , "2" , ['1'])
+a.ajout_transition( ['1'] , "7" , ['1'])
+a.ajout_transition( ['1'] , "3" , ['1'])
+a.ajout_transition( ['1'] , "0" , ['1'])
+a.ajout_transition( ['1'] , "5" , ['1'])
+a.ajout_transition( ['3'] , "f" , ['7'])
+a.ajout_transition( ['4'] , "l" , ['8'])
+a.ajout_transition( ['5'] , "o" , ['9'])
+a.ajout_transition( ['6'] , "h" , ['10'])
+a.ajout_transition( ['8'] , "s" , ['11'])
+a.ajout_transition( ['9'] , "r" , ['12'])
+a.ajout_transition( ['10'] , "i" , ['13'])
+a.ajout_transition( ['11'] , "e" , ['14'])
+a.ajout_transition( ['13'] , "l" , ['15'])
+a.ajout_transition( ['15'] , "e" , ['16'])

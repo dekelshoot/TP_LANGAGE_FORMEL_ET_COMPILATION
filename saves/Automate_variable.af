@@ -1,0 +1,86 @@
+a = Automate()
+
+a.ajout_type("variable")
+
+a.ajouter_symbole(symbole = "a")
+
+a.ajouter_symbole(symbole = "b")
+
+a.ajouter_symbole(symbole = "c")
+
+a.ajouter_symbole(symbole = "d")
+
+a.ajouter_symbole(symbole = "e")
+
+a.ajouter_symbole(symbole = "f")
+
+a.ajouter_symbole(symbole = "g")
+
+a.ajouter_symbole(symbole = "h")
+
+a.ajouter_symbole(symbole = "i")
+
+a.ajouter_symbole(symbole = "j")
+
+a.ajouter_symbole(symbole = "k")
+
+a.ajouter_symbole(symbole = "l")
+
+a.ajouter_symbole(symbole = "m")
+
+a.ajouter_symbole(symbole = "n")
+
+a.ajouter_symbole(symbole = "o")
+
+a.ajouter_symbole(symbole = "p")
+
+a.ajouter_symbole(symbole = "q")
+
+a.ajouter_symbole(symbole = "r")
+
+a.ajouter_symbole(symbole = "s")
+
+a.ajouter_symbole(symbole = "t")
+
+a.ajouter_symbole(symbole = "u")
+
+a.ajouter_symbole(symbole = "v")
+
+a.ajouter_symbole(symbole = "w")
+
+a.ajouter_symbole(symbole = "x")
+
+a.ajouter_symbole(symbole = "y")
+
+a.ajouter_symbole(symbole = "z")
+
+a.ajout_etat(etat = ['0'] , initial =True)
+
+a.ajout_etat(etat = ['1'] , final =True)
+
+a.ajout_transition( ['0'] , "a" , ['1'])
+a.ajout_transition( ['0'] , "b" , ['1'])
+a.ajout_transition( ['0'] , "c" , ['1'])
+a.ajout_transition( ['0'] , "d" , ['1'])
+a.ajout_transition( ['0'] , "e" , ['1'])
+a.ajout_transition( ['0'] , "f" , ['1'])
+a.ajout_transition( ['0'] , "g" , ['1'])
+a.ajout_transition( ['0'] , "h" , ['1'])
+a.ajout_transition( ['0'] , "i" , ['1'])
+a.ajout_transition( ['0'] , "j" , ['1'])
+a.ajout_transition( ['0'] , "k" , ['1'])
+a.ajout_transition( ['0'] , "l" , ['1'])
+a.ajout_transition( ['0'] , "m" , ['1'])
+a.ajout_transition( ['0'] , "n" , ['1'])
+a.ajout_transition( ['0'] , "o" , ['1'])
+a.ajout_transition( ['0'] , "p" , ['1'])
+a.ajout_transition( ['0'] , "q" , ['1'])
+a.ajout_transition( ['0'] , "r" , ['1'])
+a.ajout_transition( ['0'] , "s" , ['1'])
+a.ajout_transition( ['0'] , "t" , ['1'])
+a.ajout_transition( ['0'] , "u" , ['1'])
+a.ajout_transition( ['0'] , "v" , ['1'])
+a.ajout_transition( ['0'] , "w" , ['1'])
+a.ajout_transition( ['0'] , "x" , ['1'])
+a.ajout_transition( ['0'] , "y" , ['1'])
+a.ajout_transition( ['0'] , "z" , ['1'])
