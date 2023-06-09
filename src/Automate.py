@@ -368,7 +368,7 @@ class Automate():
             return True
 
         elif (tuple(etat_depart), symbole) in self.transitions and etat_arrive in self.f_transitions(etat_depart, symbole):
-            print("transition deja presente dans l'automate")
+            # print("transition deja presente dans l'automate")
             return False
 
     # Ajout du type a l'automate

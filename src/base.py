@@ -314,12 +314,20 @@ def create_automate_complementaire():
     Automate_condition.ajout_etat(["4"])
     Automate_condition.ajout_etat(["5"])
     Automate_condition.ajout_etat(["6"], final=True)
+    Automate_condition.ajout_etat(["7"])
+    Automate_condition.ajout_etat(["8"])
+    Automate_condition.ajout_etat(["9"])
+    Automate_condition.ajout_etat(["10"], final=True)
     Automate_condition.ajout_transition(["0"], "i", ["1"])
     Automate_condition.ajout_transition(["1"], "f", ["2"])
     Automate_condition.ajout_transition(["0"], "e", ["3"])
     Automate_condition.ajout_transition(["3"], "l", ["4"])
     Automate_condition.ajout_transition(["4"], "s", ["5"])
     Automate_condition.ajout_transition(["5"], "e", ["6"])
+    Automate_condition.ajout_transition(["0"], "t", ["7"])
+    Automate_condition.ajout_transition(["7"], "h", ["8"])
+    Automate_condition.ajout_transition(["8"], "e", ["9"])
+    Automate_condition.ajout_transition(["9"], "n", ["10"])
     save(Automate_condition, "Automate_condition.af")
     to_png(Automate_condition, "Automate_condition.png")
 
@@ -337,6 +345,8 @@ def create_automate_complementaire():
     Automate_loop.ajout_etat(["6"])
     Automate_loop.ajout_etat(["7"])
     Automate_loop.ajout_etat(["8"], final=True)
+    Automate_loop.ajout_etat(["9"])
+    Automate_loop.ajout_etat(["10"], final=True)
     Automate_loop.ajout_transition(["0"], "f", ["1"])
     Automate_loop.ajout_transition(["1"], "o", ["2"])
     Automate_loop.ajout_transition(["2"], "r", ["3"])
@@ -345,6 +355,8 @@ def create_automate_complementaire():
     Automate_loop.ajout_transition(["5"], "i", ["6"])
     Automate_loop.ajout_transition(["6"], "l", ["7"])
     Automate_loop.ajout_transition(["7"], "e", ["8"])
+    Automate_loop.ajout_transition(["0"], "d", ["9"])
+    Automate_loop.ajout_transition(["9"], "o", ["10"])
     save(Automate_loop, "Automate_loop.af")
     to_png(Automate_loop, "Automate_loop.png")
 
@@ -392,9 +404,9 @@ def determine_type(res: list):
 alphabets = {
     "int": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
     "boolean": ["T", "r", "u", "e", "F", "a", "l", "s", "e"],
-    "operators": ["+", "-", "*", "/", "="],
+    "operators": ["+", "-", "*", "/", "=", ">", "<"],
     "variables": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
-    "conditions": ["i", "f", "e", "l", "s", "e"],
-    "loops": ["f", "o", "r",  "w", "h", "i", "l", "e"],
+    "conditions": ["i", "f", "e", "l", "s", "e", "t", "h", "e", "n"],
+    "loops": ["f", "o", "r",  "w", "h", "i", "l", "e", "d", "o"],
     "reserved_words": ["then", "in",]
 }

@@ -1,0 +1,28 @@
+digraph Graph {
+    rankdir="LR";
+
+    // States (8)
+    node [shape = point ];     __Qi__ // Initial state
+    node [shape = circle];       Q_0 [label = " 0 "];
+    node [shape = circle];       Q_1 [label = " 1 "];
+    node [shape = circle];       Q_2 [label = " 2 "];
+    node [shape = circle];       Q_3 [label = " 3 "];
+    node [shape = circle];       Q_4 [label = " 4 "];
+    node [shape = circle];       Q_5 [label = " 5 "];
+    node [shape = circle];       Q_6 [label = " 6 "];
+    node [shape = doublecircle]; Q_7 [label = " 7 "];
+
+    // Transitions
+    __Qi__ -> Q_0; // Initial state arrow
+    Q_0 -> Q_1 [label = "/ "];
+    Q_1 -> Q_2 [label = "* "];
+    Q_2 -> Q_2 [label = "a "];
+    Q_2 -> Q_2 [label = "b "];
+    Q_2 -> Q_6 [label = "* "];
+    Q_2 -> Q_3 [label = "% "];
+    Q_3 -> Q_4 [label = "* "];
+    Q_4 -> Q_5 [label = "/ "];
+    Q_5 -> Q_2 [label = "a "];
+    Q_5 -> Q_2 [label = "b "];
+    Q_6 -> Q_7 [label = "/ "];
+}

@@ -23,4 +23,5 @@ print(reconnaissance_texte(F, texte))
 
 res = reconnaissance_texte(F, texte)
 
+print("\n\n")
 print(determine_type(res))

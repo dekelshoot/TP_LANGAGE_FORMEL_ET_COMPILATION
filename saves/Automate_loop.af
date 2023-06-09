@@ -18,6 +18,10 @@ a.ajouter_symbole(symbole = "l")
 
 a.ajouter_symbole(symbole = "e")
 
+a.ajouter_symbole(symbole = "d")
+
+a.ajouter_symbole(symbole = "o")
+
 a.ajout_etat(etat = ['0'] , initial =True)
 
 a.ajout_etat(etat = ['1'] , )
@@ -36,11 +40,19 @@ a.ajout_etat(etat = ['7'] , )
 
 a.ajout_etat(etat = ['8'] , final =True)
 
+a.ajout_etat(etat = ['9'] , )
+
+a.ajout_etat(etat = ['10'] , final =True)
+
 a.ajout_transition( ['0'] , "f" , ['1'])
 a.ajout_transition( ['0'] , "w" , ['4'])
+a.ajout_transition( ['0'] , "d" , ['9'])
+a.ajout_transition( ['1'] , "o" , ['2'])
 a.ajout_transition( ['1'] , "o" , ['2'])
 a.ajout_transition( ['2'] , "r" , ['3'])
 a.ajout_transition( ['4'] , "h" , ['5'])
 a.ajout_transition( ['5'] , "i" , ['6'])
 a.ajout_transition( ['6'] , "l" , ['7'])
 a.ajout_transition( ['7'] , "e" , ['8'])
+a.ajout_transition( ['9'] , "o" , ['10'])
+a.ajout_transition( ['9'] , "o" , ['10'])

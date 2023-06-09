@@ -1,0 +1,41 @@
+a = Automate()
+
+a.ajout_type("unknow")
+
+a.ajouter_symbole(symbole = "a")
+
+a.ajouter_symbole(symbole = "b")
+
+a.ajouter_symbole(symbole = "*")
+
+a.ajouter_symbole(symbole = "/")
+
+a.ajouter_symbole(symbole = "%")
+
+a.ajout_etat(etat = ['0'] , initial =True)
+
+a.ajout_etat(etat = ['1'] , )
+
+a.ajout_etat(etat = ['2'] , )
+
+a.ajout_etat(etat = ['3'] , )
+
+a.ajout_etat(etat = ['4'] , )
+
+a.ajout_etat(etat = ['5'] , )
+
+a.ajout_etat(etat = ['6'] , )
+
+a.ajout_etat(etat = ['7'] , final =True)
+
+a.ajout_transition( ['0'] , "/" , ['1'])
+a.ajout_transition( ['1'] , "*" , ['2'])
+a.ajout_transition( ['2'] , "a" , ['2'])
+a.ajout_transition( ['2'] , "b" , ['2'])
+a.ajout_transition( ['2'] , "*" , ['6'])
+a.ajout_transition( ['2'] , "%" , ['3'])
+a.ajout_transition( ['3'] , "*" , ['4'])
+a.ajout_transition( ['4'] , "/" , ['5'])
+a.ajout_transition( ['5'] , "a" , ['2'])
+a.ajout_transition( ['5'] , "b" , ['2'])
+a.ajout_transition( ['6'] , "/" , ['7'])

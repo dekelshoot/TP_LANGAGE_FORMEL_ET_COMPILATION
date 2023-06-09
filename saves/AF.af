@@ -1,0 +1,20 @@
+a = Automate()
+
+a.ajouter_symbole(symbole = "a")
+
+a.ajouter_symbole(symbole = "b")
+
+a.ajout_etat(etat = ['1'] , initial =True)
+
+a.ajout_etat(etat = ['2'] , )
+
+a.ajout_etat(etat = ['3'] , )
+
+a.ajout_etat(etat = ['4'] , final =True)
+
+a.ajout_transition( ['1'] , "a" , ['2'])
+a.ajout_transition( ['1'] , "a" , ['3'])
+a.ajout_transition( ['2'] , "a" , ['4'])
+a.ajout_transition( ['3'] , "a" , ['3'])
+a.ajout_transition( ['3'] , "b" , ['4'])
+a.ajout_transition( ['4'] , "b" , ['2'])
