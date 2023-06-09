@@ -205,7 +205,7 @@ class Automate():
 				return cle
 		return None
 
-
+	
 	def minimiser(self):
 		
 		if not self.est_deterministe():
@@ -217,37 +217,42 @@ class Automate():
 
 		while pie != nouvelles_classes_equivalence:
 			
+			if all(len(sublist) == 1 for sublist in pie): # si toutes les classes s'ont chacunes qu'un seul etat, pas besoin de chercher a les scinder
+				nouvelles_classes_equivalence = pie 
+				dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
+				break 
+			
 			for classe_equivalence in pie:
 				if len(classe_equivalence)>1:
-					print("la calsse d'equivalence est ", classe_equivalence)
+					#print("la calsse d'equivalence est ", classe_equivalence)
 					dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
 					dictionnaire_nouvelles_classes_equivalence_copy = str(dictionnaire_nouvelles_classes_equivalence)
 					
 					for symbole in self.alphabet:
 						
 						dictionnaire_nouvelles_classes_equivalence = eval(dictionnaire_nouvelles_classes_equivalence_copy)
-						print("le dictionnaire au debut est ", dictionnaire_nouvelles_classes_equivalence)
-						print("quand je suis su le symole ", symbole)
+						#print("le dictionnaire au debut est ", dictionnaire_nouvelles_classes_equivalence)
+						#print("quand je suis su le symole ", symbole)
 						for etat in classe_equivalence:
-							print(f"etat {etat} de la classe {classe_equivalence}")
+							#print(f"etat {etat} de la classe {classe_equivalence}")
 							etat_arrive = self.f_transitions(etat, symbole)
-							print(f"etat {etat} de la classe {classe_equivalence} avec le smbole {symbole} me mene a {etat_arrive}")
+							#print(f"etat {etat} de la classe {classe_equivalence} avec le smbole {symbole} me mene a {etat_arrive}")
 							
 							if len(etat_arrive) != 0:
 								classe = self.trouver_classe(dictionnaire_nouvelles_classes_equivalence, etat_arrive[0])
 								
 								dictionnaire_nouvelles_classes_equivalence[classe].append(etat)
-								print(f"comme cest non vide et que etat errive {etat_arrive} est dans la classe {classe_equivalence} alors j'ajoute l'etat {etat} dans le dictionnaire")
-								print(f" et le dictionnaire devient {dictionnaire_nouvelles_classes_equivalence}")
+								#print(f"comme cest non vide et que etat errive {etat_arrive} est dans la classe {classe_equivalence} alors j'ajoute l'etat {etat} dans le dictionnaire")
+								#print(f" et le dictionnaire devient {dictionnaire_nouvelles_classes_equivalence}")
 							else:
 								
-								print(f"comme etat arrive est vide  je recommence")
+								#print(f"comme etat arrive est vide  je recommence")
 								break
 
 						
-						i = sum(bool(classe) for classe in dictionnaire_nouvelles_classes_equivalence.values())
-						if	i>1:
-							print("i est",i)
+						taille_nouvelle_classe_equivalence = sum(bool(classe) for classe in dictionnaire_nouvelles_classes_equivalence.values())
+						if	taille_nouvelle_classe_equivalence>1:
+							#print(" la taille de la nouvelle classe d'equivalence avec le symbole ", symbole, " est",taille_nouvelle_classe_equivalence)
 							break
 						
 					
@@ -255,12 +260,12 @@ class Automate():
 						if classe:
 							nouvelles_classes_equivalence.append(classe)
 
-					print(pie, "SEP", classe_equivalence, "PIE ET CLASSE EQUIVALENCE")
+					#print(pie, "SEP", classe_equivalence, "PIE ET CLASSE EQUIVALENCE")
 					ce_qui_etait_la_quon_a_pas_scinde  = [x for x in pie if x != classe_equivalence]
-					print(ce_qui_etait_la_quon_a_pas_scinde)
+					#print("ce qu'on a pas scinde", ce_qui_etait_la_quon_a_pas_scinde)
 					nouvelles_classes_equivalence.extend(ce_qui_etait_la_quon_a_pas_scinde)
 					
-					print(f"les nouvelles classes d'equivalences que je forme apres parcours de la classe {classe_equivalence} sont {nouvelles_classes_equivalence}")
+					#print(f"les nouvelles classes d'equivalences que je forme apres parcours de la classe {classe_equivalence} sont {nouvelles_classes_equivalence}")
 					if nouvelles_classes_equivalence != pie:
 						pie = nouvelles_classes_equivalence
 						nouvelles_classes_equivalence = []
@@ -268,7 +273,7 @@ class Automate():
 					else:
 						dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
 						break
-
+		
 		print(f"les classes d'equivalences finales sont : {nouvelles_classes_equivalence}")
 			                
 		# Construction de l'automate minimisé
@@ -280,7 +285,8 @@ class Automate():
 
 		# Parcours des nouvelles classes d'équivalence
 		for classe in pie:
-			nouvel_etat = automate_minimise.ajout_etat(["=".join(["=".join(etat) for etat in classe])])
+			nouvel_etat = ["=".join(["=".join(etat) for etat in classe])]
+			automate_minimise.ajout_etat(nouvel_etat)
 
 			# Si la classe contient un état initial, on le définit comme état initial dans l'automate minimisé
 			if any(etat in self.etats_initiaux for etat in classe):
@@ -295,11 +301,9 @@ class Automate():
 				etat_arrive = self.f_transitions(classe[0], symbole)  # On prend le premier état de la classe dequivalence
 				if etat_arrive:
 					nouvelle_classe = self.trouver_classe(dictionnaire_nouvelles_classes_equivalence, etat_arrive[0])
-					nouvel_etat_arrive = automate_minimise.ajout_etat(["=".join([etat for etat in nouvelle_classe])])
+					nouvel_etat_arrive = ["=".join([etat for etat in nouvelle_classe])]
+					automate_minimise.ajout_etat(nouvel_etat_arrive)
 					automate_minimise.ajout_transition(nouvel_etat, symbole, nouvel_etat_arrive)
-
-		# Copie des attributs non modifiés de l'automate original dans l'automate minimisé
-		automate_minimise.transitions = self.transitions
 
 		# Affectation de l'automate minimisé à l'automate actuel
 		self.alphabet = automate_minimise.alphabet
@@ -424,12 +428,13 @@ class Automate():
 		"""
 		Affichage de facon propre l'objet automate
 		"""
-		#intermediaires = set([etat[0] for etat in self.etats]) - set([etat[0] for etat in self.etats_initiaux]) - set([etat[0] for etat in self.etats_finaux])
-		#print(intermediaires)
+		
+		intermediaires = list(set([element for sublist in self.etats for element in sublist ]) - set([element for sublist in self.etats_initiaux for element in sublist ]) - set([element for sublist in self.etats_finaux for element in sublist ]))
+		
 		ret =  self.nature() + "\n"
 		ret += "   - alphabet   : {" + ", ".join(self.alphabet) + "} \n"
 		ret += "   - initiaux      : " + ", ".join(["(%s)" % ",".join(init) for init in self.etats_initiaux]) + "\n"
-		#ret += "   - etats intermediaires : " + ", ".join([",".join(init) for init in intermediaires]) + "\n" 
+		ret += "   - etats intermediaires : " + ", ".join(f"({element})" for element in intermediaires) + "\n" 
 		ret += "   - finaux    : " + ", ".join(["(%s)" %",".join(init) for init in self.etats_finaux]) + "\n"
 		ret += "   - nombre d'etats : %d \n" % (len(self.etats))
 		ret += "   - transitions :\n"
@@ -659,7 +664,7 @@ a.ajout_transition( ['5'] , "b" , ['5'])
 
 #print(a)
 #a.minimiser()
-
+"""
 c = Automate()
 
 c.ajouter_symbole(symbole = "a")
@@ -692,8 +697,10 @@ c.ajout_transition( ['4'] , "c" , ['5'])
 c.ajout_transition( ['5'] , "a" , ['5'])
 c.ajout_transition( ['5'] , "b" , ['5'])
 c.ajout_transition( ['5'] , "c" , ['5'])
-"""
+
 
 print(a)
-d = a+b
-print(d)
+a.minimiser()
+print(a)
+
+print(a+c)
