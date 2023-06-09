@@ -85,7 +85,10 @@ def reconnaissance_mot(A: Automate, mot: str) -> bool:
         for char in mot:
             if char not in A.alphabet:
                 return [False, "unknown"]
-            etat = A.f_transitions(etat, char)[0]
+            if len(A.f_transitions(etat, char)) != 0:
+                etat = A.f_transitions(etat, char)[0]
+            else:
+                return [False, "unknown"]
             if len(etat) == 0 or etat == ['puit']:
                 return [False, "unknown"]
         if etat in A.etats_finaux:
@@ -353,25 +356,36 @@ def determine_type(res: list):
     D = read("Automate_variable.af")
     E = read("Automate_operator.af")
 
+    analyse_lexical = ""
     for result in res:
-        if reconnaissance_mot(A, result[0]):
+        if reconnaissance_mot(A, result[0])[0]:
             result[2] = A.type
+            analyse_lexical += "<"+result[0]+":"+result[2]+">"
         else:
-            if reconnaissance_mot(B, result[0]):
+            if reconnaissance_mot(B, result[0])[0]:
                 result[2] = B.type
+                analyse_lexical += "<"+result[0]+":"+result[2]+">"
             else:
-                if reconnaissance_mot(C, result[0]):
+                if reconnaissance_mot(C, result[0])[0]:
                     result[2] = C.type
+                    analyse_lexical += "<"+result[0]+":"+result[2]+">"
                 else:
-                    if reconnaissance_mot(D, result[0]):
+                    if reconnaissance_mot(D, result[0])[0]:
                         result[2] = D.type
+                        analyse_lexical += "<"+result[0]+":"+result[2]+">"
                     else:
-                        if reconnaissance_mot(E, result[0]):
+                        if reconnaissance_mot(E, result[0])[0]:
                             result[2] = E.type
+                            analyse_lexical += "<"+result[0]+":"+result[2]+">"
                         else:
+                            analyse_lexical += "<" + \
+                                result[0]+":"+result[2]+">"
                             if result[0] not in alphabets["reserved_words"]:
                                 result[2] = "variable"
-    return res
+                                analyse_lexical += "<" + \
+                                    result[0]+":"+result[2]+">"
+
+    return analyse_lexical
 
 
 # alphabet de qui sera utilisé dans tous le devoir

@@ -2,7 +2,10 @@ from base import *
 from util import *
 
 create_automate_complementaire()
-
+# A = read("AF.af")
+# to_png(A, "A.png")
+# A.minimiser()
+# to_png(A, "minimiser.png")
 A = read("Automate_loop.af")
 B = read("Automate_condition.af")
 C = read("Automate_int.af")
