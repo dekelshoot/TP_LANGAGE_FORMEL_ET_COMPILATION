@@ -102,13 +102,16 @@ def to_png(A: Automate, filename=None, name="Graph"):
          @param name le nom du graphe.
          @param filename le nom du fichier PNG, utilisez le nom du graphique si
              non spécifié. """
-    filename = "../png/"+filename
+    
     if filename is None:
         filename = name + ".png"
+        filename = "../png/"+filename
+    else:
+        filename = "../png/"+filename
 
     tmp_file = filename + ".tmp"
-    with open(tmp_file, "w") as file:
+    with open(tmp_file, "w", encoding = 'UTF-8') as file:
         file.write(to_dot(A, name))
 
     call(("dot -Tpng " + tmp_file + "  -o " + filename).split(" "))
-    call(("rm " + tmp_file).split(" "))
+    #call(("rm " + tmp_file).split(" "))

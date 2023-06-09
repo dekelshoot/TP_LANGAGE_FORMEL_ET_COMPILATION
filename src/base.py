@@ -248,9 +248,8 @@ def definir() -> Automate:
 
                 j = j+1
 
-            print(retour)
-    save(A, "AF.af")
-    to_png(A=A)
+    #save(A, f"Automate_{A.type}.af")
+    #to_png(A=A)
     return A
 
 # creation des automates complementaires
