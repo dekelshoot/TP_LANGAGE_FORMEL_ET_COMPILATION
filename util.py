@@ -1,5 +1,5 @@
 from subprocess import call
-from base import Automate
+from Automate import Automate
 
 
 def read(filename):

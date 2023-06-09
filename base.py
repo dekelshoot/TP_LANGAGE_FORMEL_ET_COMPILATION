@@ -1,672 +1,340 @@
 # classe automate
-
-class Automate():
-
-	"""
-	Ce qu'il faut savoir de la calsse Automate() :
-
-	1. L'alphabet est une LISTE de tous les symboles du langage reconnu
-	2. L'ensemble des etats, Q, c'est egalement une liste des differents etats de l'automate, donc une LISTE DE LISTE.
-	3. L'etat initial, est une LISTE DE LISTE, (d'au moins une liste), si la liste n'a qu'une seule liste alors, 
-	alors cet automate n'a qu'un seul etat initial, maintenant si cette une seule liste n'a qu'un seul element, alors l'etat initial
-	est un sous ensemble d'un seul etat..
-	4. Pareil pour l'etat final.
-	5. Un etat qi maintenant est une simple LISTE d'un ou plusieurs elements, si cette liste a un seul element alors cet etat est un 
-	sous ensemble d'un seul etat
-	6. La fonction de transition prend donc en entree, une liste d'elements, un str ( le symbole ) et retourne une liste de liste, j'explique :
-	un etat est materialisé par une liste d'elements, ca peut etre plus d'un element(dans le cas d'un determinisé), 
-	le symbole est tout simplement un caractere de l'alphabet à lire. La liste de le liste retournee est tout simplement la liste
-	des differents etats ou la transition peut nous emmener, la premiere liste est pour contenir ces differents etats, la deuxieme
-	est pour chacun des etats ou ca nous mene
-	7. Le dictionnaire transactions est un dictionnaire materialisant les transitions de l'automate, un element du dictionnaire est 
-	tel que la cle est un tuple contenant deux elements, le premiere est un tuple, qui a tous les elements de l'etat et l'autre
-	element est le symbole lu, maintenant la valeur est est une liste de liste donc la liste des etats aux quels ca mene
-
-	"""
-
-	
-	# Constructeur de la classe
-	def __init__(self):
-		
-		self.alphabet = []
-		self.etats = []
-		self.etats_initiaux = []
-		self.etats_finaux = []
-		self.transitions = {}
-		self.type = "unknow"
-
-	
-	# fonction de transition
-	def f_transitions(self, etat:list, symbole:str) -> list:
-
-		for trans in self.transitions: # je parcours les transitions
-			if list(trans[0]) == etat and trans[1] == symbole: # si je tombe sur un transition telle que l'etat est celui que je passe en entree, et le symbole ce lui que je passe en entree
-				return self.transitions[trans] # alors je prends l'etat au quel ca mene et je le retourne
-		return []
+from util import to_png, save
+from Automate import Automate
 
 
-	# fonction permettant de savoir si un automate contient des epsilonnes-transitions
-	def est_epsilone_non_deterministe(self)->bool:
-		
-		for trans in self.transitions.keys():
-			if trans[1] == 'ε' :
-				return True
-		return False
+# ------fonctions complémentaires------------------------------------------------------------------------------
 
-	
-	# fonction permettant de savoir si un automate est non-deterministe
-	def est_non_deterministe(self)->bool:
-		
-		for trans in self.transitions.values():
-			if len(trans) > 1:
-				return True
-		
-		if len(self.etats_initiaux) > 1:
-			return True
+# 1. determinisation d'un automate
+def determinisation(A: Automate) -> Automate:
+    """
+    Permet de déterminiser l'automate entré en paramètre
 
-		return False
+    @param A: Automate a derterminiser
+    @return Automate déterminiser
+    """
 
-	
-	# fonction permettant de savoir si un automate est deterministe
-	def est_deterministe(self)->bool:
-		
-		for trans in self.transitions.values():
-			if len(trans) > 1:
-				return False
-	
-		if len(self.etats_initiaux) > 1:
-			return False
+    if A.est_deterministe():
+        return A
 
-		if len(self.etats) == 0 or len(self.alphabet) == 0:
-			return False
+    else:
 
-		for trans in self.transitions.keys():
-			if trans[1] == 'ε' :
-				return False
+        tous_les_etats_du_determinise = []
+        toutes_les_transitions_du_determinise = {}
 
-		return True
+        etat_initial_du_determinise = []
+        for etat in A.etats_initiaux:
+            for num_etat in etat:
+                etat_initial_du_determinise.append(num_etat)
 
+        tous_les_etats_du_determinise.append(etat_initial_du_determinise)
+        etat_initial_du_determinise = [etat_initial_du_determinise]
 
-	# fonction permettant de savoir si un automate est complet
-	def est_complet(self)->bool:
-		
-		for etat in self.etats:
-			for char in self.alphabet:
-				if (tuple(etat),char) not in self.transitions.keys():
-					return False
-		
-		if len(self.etats) == 0 or len(self.alphabet) == 0:
-			return False
+        for etat in tous_les_etats_du_determinise:
 
-		return True
+            for character in A.alphabet:
+                nouvel_etat_pour_charactere = []
 
+                for numero_etat in etat:
 
-	def ajout_etat(self, etat:list, initial = False, final = False) -> bool:
+                    liste_des_etats = A.f_transitions([numero_etat], character)
 
-		"""
-		ajout d'un etat dans un automate
-		@param state : l'etat que tu veux ajouter dans l'automate (une liste, qui est l'etat)
-		@param initial : si True, alors l'etat est un etat initial
-		@param final : si True, alors l'etat est un etat final
+                    for e in liste_des_etats:
+                        for num_etat in e:
+                            if num_etat not in nouvel_etat_pour_charactere:
+                                nouvel_etat_pour_charactere.append(num_etat)
+                if nouvel_etat_pour_charactere not in tous_les_etats_du_determinise:
+                    if len(nouvel_etat_pour_charactere) != 0:
+                        tous_les_etats_du_determinise.append(
+                            nouvel_etat_pour_charactere)
 
-		"""
+                if len(nouvel_etat_pour_charactere) != 0:
+                    toutes_les_transitions_du_determinise[(tuple(etat), character)] = [
+                        nouvel_etat_pour_charactere]
 
-		if not etat in self.etats:
-			self.etats.append(etat)
+        etats_finaux_du_determinise = []
+        for etat in tous_les_etats_du_determinise:
+            for etat_final in A.etats_finaux:  # ici aussi
+                for num_etat in etat_final:
+                    if num_etat in etat:
+                        if etat not in etats_finaux_du_determinise:
+                            etats_finaux_du_determinise.append(etat)
+        etats_finaux_du_determinise = etats_finaux_du_determinise
 
-			if initial == True:
-				self.etats_initiaux.append(etat)
+        A_prime = Automate()
+        A_prime.create(alphabet=A.alphabet, etats=tous_les_etats_du_determinise, etats_initiaux=etat_initial_du_determinise,
+                       etats_finaux=etats_finaux_du_determinise, transitions=toutes_les_transitions_du_determinise)
 
-			if final == True:
-				self.etats_finaux.append(etat)
-				
-			return True
-		else:
-			
-			return False
+        return A_prime
+
+# 2. reconnaissance d'un mot par un automate
 
 
-	def valider_symbole(self, symbole:str) -> bool:
+def reconnaissance_mot(A: Automate, mot: str) -> bool:
+    """ Permet de reconnaitre un mot entré en paramètre et renvoie
+        un booleen qui dit si le mot est reconnu ou non.
 
-		if symbole not in self.alphabet:
-			return False
-		return True
+         @param A: l'automate pour la reconnaissance .
+         @param mot: le mot a reconnaitre
 
-	
-	def ajouter_symbole(self, symbole:str) -> bool:
+         @renvoie True si le mot est reconnu et False si non"""
 
-		if symbole not in self.alphabet:
-			self.alphabet.append(symbole)
-			return True
-		return False
-	
+    if A.est_deterministe():
 
-	def valider_etat(self, etat:list) -> bool:
+        etat = A.etats_initiaux[0]
+        for char in mot:
+            if char not in A.alphabet:
+                return [False, "unknown"]
+            etat = A.f_transitions(etat, char)[0]
+            if len(etat) == 0 or etat == ['puit']:
+                return [False, "unknown"]
+        if etat in A.etats_finaux:
+            return [True, A.type]
+        return [False, "unknown"]
 
-		if etat not in self.etats:
-			return False
-		return True
+    else:
+        pile = []
+        for chaque_etat_initial in A.etats_initiaux:
+            pile.append((chaque_etat_initial, 0))
 
+        while len(pile) > 0:
+            etat_actuel, indice_actuel_du_mot = pile.pop()
+            if indice_actuel_du_mot == len(mot):
+                if etat_actuel in A.etats_finaux:
+                    return [True, A.type]
+            else:
+                etats_possibles_pour_cette_transition = A.f_transitions(
+                    etat_actuel, mot[indice_actuel_du_mot])
+                for chaque_etat in etats_possibles_pour_cette_transition:
+                    if len(chaque_etat) != 0 and chaque_etat != ['puit']:
+                        pile.append((chaque_etat, indice_actuel_du_mot+1))
 
-	# determinisation d'un automate
-	def determiniser(self):
-
-		if not self.est_deterministe():
-			
-			tous_les_etats_du_determinise = []	
-			toutes_les_transitions_du_determinise = {}	
-
-			etat_initial_du_determinise = []
-			for etat in self.etats_initiaux:
-				for num_etat in etat:
-					etat_initial_du_determinise.append(num_etat)
-			
-			tous_les_etats_du_determinise.append(etat_initial_du_determinise)
-			etat_initial_du_determinise = [etat_initial_du_determinise]
-			
-			for etat in tous_les_etats_du_determinise:
-				
-				for character in self.alphabet:
-					nouvel_etat_pour_charactere = []
-					
-					for numero_etat in etat:
-						
-						liste_des_etats = self.f_transitions([numero_etat], character)
-						
-						for e in liste_des_etats: 
-							for num_etat in e:
-								if num_etat not in nouvel_etat_pour_charactere: nouvel_etat_pour_charactere.append(num_etat)
-					if nouvel_etat_pour_charactere not in tous_les_etats_du_determinise:
-						if len(nouvel_etat_pour_charactere) != 0:
-							tous_les_etats_du_determinise.append(nouvel_etat_pour_charactere)
-
-					if len(nouvel_etat_pour_charactere) != 0:	
-						toutes_les_transitions_du_determinise[(tuple(etat),character)]=[nouvel_etat_pour_charactere]
-				
-
-			etats_finaux_du_determinise = []
-			for etat in tous_les_etats_du_determinise:
-				for etat_final in self.etats_finaux: # ici aussi
-					for num_etat in etat_final:
-						if num_etat in etat:
-							if etat not in etats_finaux_du_determinise: etats_finaux_du_determinise.append(etat)
-			etats_finaux_du_determinise = etats_finaux_du_determinise
-				
-			
-			self.etats_initiaux = tous_les_etats_du_determinise ; self.etats_finaux = etats_finaux_du_determinise 
-			self.etats =  etat_initial_du_determinise ; self.transitions = toutes_les_transitions_du_determinise
-		
-
-	def trouver_classe(self, dictionnaire, liste):
-
-		liste = tuple(liste)
-		for cle in dictionnaire.keys():
-			if all(element in cle for element in liste):
-				return cle
-		return None
+        return [False, "unknown"]
 
 
-	def minimiser(self):
-		
-		if not self.est_deterministe():
-			self.determiniser()
-		
-		non_finaux  = [x for x in self.etats if x not in self.etats_finaux]
-		pie = [non_finaux, self.etats_finaux]
-		nouvelles_classes_equivalence = []
+# 2 (suite) reconnaissance d'un texte par un automate
+def reconnaissance_texte(A: Automate, texte: str, sep=" ") -> list:
+    """ Permet de reconnaitre tous les mots d'une phrase entrés en paramètre et renvoie
+        un matrice a deux dimensions contituer du mot et d'un booleen qui dit si le mot
+        est reconnu ou non.
+         @param A: l'automate pour la reconnaissance .
+         @param texte: le texte a reconnaitre
+         @param sep: le séparateur
+         @renvoie une liste de reconnaissance"""
 
-		while pie != nouvelles_classes_equivalence:
-			
-			for classe_equivalence in pie:
-				if len(classe_equivalence)>1:
-					print("la calsse d'equivalence est ", classe_equivalence)
-					dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
-					dictionnaire_nouvelles_classes_equivalence_copy = str(dictionnaire_nouvelles_classes_equivalence)
-					
-					for symbole in self.alphabet:
-						
-						dictionnaire_nouvelles_classes_equivalence = eval(dictionnaire_nouvelles_classes_equivalence_copy)
-						print("le dictionnaire au debut est ", dictionnaire_nouvelles_classes_equivalence)
-						print("quand je suis su le symole ", symbole)
-						for etat in classe_equivalence:
-							print(f"etat {etat} de la classe {classe_equivalence}")
-							etat_arrive = self.f_transitions(etat, symbole)
-							print(f"etat {etat} de la classe {classe_equivalence} avec le smbole {symbole} me mene a {etat_arrive}")
-							
-							if len(etat_arrive) != 0:
-								classe = self.trouver_classe(dictionnaire_nouvelles_classes_equivalence, etat_arrive[0])
-								
-								dictionnaire_nouvelles_classes_equivalence[classe].append(etat)
-								print(f"comme cest non vide et que etat errive {etat_arrive} est dans la classe {classe_equivalence} alors j'ajoute l'etat {etat} dans le dictionnaire")
-								print(f" et le dictionnaire devient {dictionnaire_nouvelles_classes_equivalence}")
-							else:
-								
-								print(f"comme etat arrive est vide  je recommence")
-								break
+    # sépareation du texte en tokens
+    tokens = texte.split(sep)
+    token_temp = []
+    for token in tokens:
+        if len(token) != 0:
+            token_temp.append(token)
+    tokens = token_temp
 
-						
-						i = sum(bool(classe) for classe in dictionnaire_nouvelles_classes_equivalence.values())
-						if	i>1:
-							print("i est",i)
-							break
-						
-					
-					for classe in dictionnaire_nouvelles_classes_equivalence.values():
-						if classe:
-							nouvelles_classes_equivalence.append(classe)
+    Matrice_reconnaissance = []
+    for token in tokens:
+        Matrice_reconnaissance.append([token]+reconnaissance_mot(A, token))
 
-					print(pie, "SEP", classe_equivalence, "PIE ET CLASSE EQUIVALENCE")
-					ce_qui_etait_la_quon_a_pas_scinde  = [x for x in pie if x != classe_equivalence]
-					print(ce_qui_etait_la_quon_a_pas_scinde)
-					nouvelles_classes_equivalence.extend(ce_qui_etait_la_quon_a_pas_scinde)
-					
-					print(f"les nouvelles classes d'equivalences que je forme apres parcours de la classe {classe_equivalence} sont {nouvelles_classes_equivalence}")
-					if nouvelles_classes_equivalence != pie:
-						pie = nouvelles_classes_equivalence
-						nouvelles_classes_equivalence = []
-						break
-					else:
-						dictionnaire_nouvelles_classes_equivalence = {tuple(element for sous_liste in classe for element in sous_liste): [] for classe in pie}
-						break
-
-		print(f"les classes d'equivalences finales sont : {nouvelles_classes_equivalence}")
-			                
-		# Construction de l'automate minimisé
-		automate_minimise = Automate()
-
-		# Ajout de l'alphabet
-		for symbole in self.alphabet:
-			automate_minimise.ajouter_symbole(symbole)
-
-		# Parcours des nouvelles classes d'équivalence
-		for classe in pie:
-			nouvel_etat = automate_minimise.ajout_etat(["=".join(["=".join(etat) for etat in classe])])
-
-			# Si la classe contient un état initial, on le définit comme état initial dans l'automate minimisé
-			if any(etat in self.etats_initiaux for etat in classe):
-				automate_minimise.etats_initiaux = [nouvel_etat]
-
-			# Si la classe contient un état final, on le définit comme état final dans l'automate minimisé
-			if any(etat in self.etats_finaux for etat in classe):
-				automate_minimise.etats_finaux.append(nouvel_etat)
-
-			# Parcours de l'alphabet pour la construction des transitions
-			for symbole in self.alphabet:
-				etat_arrive = self.f_transitions(classe[0], symbole)  # On prend le premier état de la classe dequivalence
-				if etat_arrive:
-					nouvelle_classe = self.trouver_classe(dictionnaire_nouvelles_classes_equivalence, etat_arrive[0])
-					nouvel_etat_arrive = automate_minimise.ajout_etat(["=".join([etat for etat in nouvelle_classe])])
-					automate_minimise.ajout_transition(nouvel_etat, symbole, nouvel_etat_arrive)
-
-		# Copie des attributs non modifiés de l'automate original dans l'automate minimisé
-		automate_minimise.transitions = self.transitions
-
-		# Affectation de l'automate minimisé à l'automate actuel
-		self.alphabet = automate_minimise.alphabet
-		self.etats = automate_minimise.etats
-		self.etats_initiaux = automate_minimise.etats_initiaux
-		self.etats_finaux = automate_minimise.etats_finaux
-		self.transitions = automate_minimise.transitions
+    return Matrice_reconnaissance
 
 
-	# fonction permettant de creer un automate
-	def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict, type="unknow"):
-		"""
-        creation d'un automate (definition du quintuplet)
-        @param alphabet : l'alphabet de l'automate
-        @param etats : liste des etats de l'automate (il s'agit s'une liste de liste)
-        @param etats_initiaux : liste des etats initiaux de l'automate (il s'agit d'une liste d'une liste)
-        @param etats_finaux : liste des etats finaux de l'automate (il s'agit d'une liste d'une liste)
+# 3. completion d'un automate
+def completion(A: Automate) -> Automate:
+    """
+    Permet de completer un Automate.
 
+    @param A: l'automate à completer .
+    @renvoie l'automate complété
+    """
+
+    if A.est_complet():
+        return A
+
+    else:
+        A_prime = Automate()
+        A_prime = A
+        A_prime.etats.append(['puit'])
+        for etat in A_prime.etats:
+            for char in A_prime.alphabet:
+                if (tuple(etat), char) not in A_prime.transitions.keys():
+                    A_prime.transitions[(tuple(etat), char)] = [['puit']]
+
+        for char in A_prime.alphabet:
+            A_prime.transitions[(tuple(['puit']), char)] = [['puit']]
+        return A_prime
+
+
+# Definition d'un automate avec la console en entrant ses constituabts au clavier
+def definir() -> Automate:
+    """Definition d'un automate avec la console en entrant ses 
+    constituabts au clavier
+
+    @renvoie : L'automate définit
+    """
+    A = Automate()
+
+    # definition de l'alphabet
+
+    taille_alphabet = int(input("Entrez le nombre de symbole de l'alphabet: "))
+    i = 0
+    while i < taille_alphabet:
+
+        char = input(" entrez le symbole numero " + str(i+1) + ": \t")
+        if not A.valider_symbole(char):
+            A.ajouter_symbole(char)
+            i = i + 1
+
+        else:
+
+            print("symbole deja present.")
+
+    # definition des etats  (intiaux et finaux).
+
+    nombre_etats = int(input("\nEntrez le nombre d'etats de l'automate: "))
+    i = 0
+    bool = True
+    while i < nombre_etats:
+
+        if bool == True:
+            etat = [
+                input(" \nentrez le nom de l'etat numero " + str(i+1) + ": ")]
+
+        if not A.valider_etat(etat):
+
+            if bool == True:
+                print(" cet etat est-il initial, final ou intermediaire ? \n  initial -> i , final -> f, intermediaire -> a, initial et final -> if :")
+            type = input(str(etat[0]) + ": \t")
+            if type == 'i':
+                A.ajout_etat(etat, initial=True)
+                i = i + 1
+            elif type == 'f':
+                A.ajout_etat(etat, final=True)
+                i = i + 1
+            elif type == 'if':
+                A.ajout_etat(etat, initial=True, final=True)
+                i = i + 1
+            elif type == 'a':
+                A.ajout_etat(etat)
+                i = i + 1
+            else:
+                print("entrez un choix valide.")
+                bool = False
+
+        else:
+            print(" etat deja dans la liste des etats de l'automate")
+
+    # definition des transitions.
+
+    for etat in A.etats:
+
+        print(f"\nEtat {etat[0]} :")
+
+        nombre_transitions_partant_de_cet_etat = int(
+            input(" entrez le nombre de transitions sortantes de cet etat : "))
+        j = 0
+
+        while j < nombre_transitions_partant_de_cet_etat:
+
+            symbole = input(
+                f" entrez le symbole de la transition numero {str(j+1)}: ")
+            etat_destination = input(
+                f" entrez le nom de l'etat destination de la transition numero {str(j+1)}: ")
+
+            retour = A.ajout_transition(etat, symbole,  [etat_destination])
+
+            if retour == True:
+
+                j = j+1
+
+            print(retour)
+    save(A, "AF.af")
+    to_png(A=A)
+    return A
+
+# creation des automates complementaires
+
+
+def create_automate_complementaire():
+    """
+        creation des automates complementaires tels que:
+
+            - Automate qui reconnait les entier
+            - Automate qui reconnait les opérateurs
         """
 
-		self.alphabet = alphabet
-		self.etats = etats
-		self.etats_initiaux = etats_initiaux
-		self.etats_finaux = etats_finaux
-		self.transitions = transitions
-		self.type = type
+    # automate reconnaissant les entiers
+    Automate_int = Automate()
+    Automate_int.alphabet = alphabets["int"]
+    Automate_int.type = "int"
+    Automate_int.ajout_etat(["0"], initial=True)
+    Automate_int.ajout_etat(["1"], final=True)
+    for symbole in Automate_int.alphabet:
+        Automate_int.ajout_transition(["0"], symbole, ["1"])
+        Automate_int.ajout_transition(["1"], symbole, ["1"])
+    save(Automate_int, "Automate_int.af")
+    to_png(Automate_int, "Automate_int.png")
+
+    # automate reconnaissant un opérateur
+    Automate_operator = Automate()
+    Automate_operator.alphabet = alphabets["operators"]
+    Automate_operator.type = "operator"
+    Automate_operator.ajout_etat(["0"], initial=True)
+    Automate_operator.ajout_etat(["1"], final=True)
+    for symbole in Automate_operator.alphabet:
+        Automate_operator.ajout_transition(["0"], symbole, ["1"])
+    save(Automate_operator, "Automate_operator.af")
+    to_png(Automate_operator, "Automate_operator.png")
+
+    # automate reconnaissant un conditions
+    Automate_condition = Automate()
+    Automate_condition.alphabet = alphabets["conditions"]
+    Automate_condition.type = "condition"
+    Automate_condition.ajout_etat(["0"], initial=True)
+    Automate_condition.ajout_etat(["1"])
+    Automate_condition.ajout_etat(["2"], final=True)
+    Automate_condition.ajout_etat(["3"])
+    Automate_condition.ajout_etat(["4"])
+    Automate_condition.ajout_etat(["5"])
+    Automate_condition.ajout_etat(["6"], final=True)
+    Automate_condition.ajout_transition(["0"], "i", ["1"])
+    Automate_condition.ajout_transition(["1"], "f", ["2"])
+    Automate_condition.ajout_transition(["0"], "e", ["3"])
+    Automate_condition.ajout_transition(["3"], "l", ["4"])
+    Automate_condition.ajout_transition(["4"], "s", ["5"])
+    Automate_condition.ajout_transition(["5"], "e", ["6"])
+    save(Automate_condition, "Automate_condition.af")
+    to_png(Automate_condition, "Automate_condition.png")
+
+    # automate reconnaissant un boucle
+    Automate_loop = Automate()
+    Automate_loop.alphabet = alphabets["loops"]
+    Automate_loop.type = "loop"
+    Automate_loop.ajout_etat(["0"], initial=True)
+    Automate_loop.ajout_etat(["1"])
+    Automate_loop.ajout_etat(["2"])
+    Automate_loop.ajout_etat(["3"], final=True)
+    Automate_loop.ajout_etat(["4"])
+    Automate_loop.ajout_etat(["5"])
+    Automate_loop.ajout_etat(["6"])
+    Automate_loop.ajout_etat(["7"])
+    Automate_loop.ajout_etat(["8"], final=True)
+    Automate_loop.ajout_transition(["0"], "f", ["1"])
+    Automate_loop.ajout_transition(["1"], "o", ["2"])
+    Automate_loop.ajout_transition(["2"], "r", ["3"])
+    Automate_loop.ajout_transition(["0"], "w", ["4"])
+    Automate_loop.ajout_transition(["4"], "h", ["5"])
+    Automate_loop.ajout_transition(["5"], "i", ["6"])
+    Automate_loop.ajout_transition(["6"], "l", ["7"])
+    Automate_loop.ajout_transition(["7"], "e", ["8"])
+    save(Automate_loop, "Automate_loop.af")
+    to_png(Automate_loop, "Automate_loop.png")
 
 
-	def ajout_transition(self, etat_depart: list, symbole: str, etat_arrive: list) -> bool:
-       
-	    
-		if not self.valider_symbole(symbole):
-			print('le symbole ' + symbole + ' ne fait pas partie de l\'alphabet.')
-			return False
-
-		if not self.valider_etat(etat_depart):
-			print('l\'etat de depart ' + etat_depart[0] + ' ne fait pas partie des etats.')
-			return False
-
-		if not self.valider_etat(etat_arrive):
-			print('l\'etat d\'arrive ' + etat_arrive[0] + ' ne fait pas partie des etats.')
-			return False
-
-        # donc j'ajoute la trasition si : oit le couple etat initaial, symbole n'existe pas encore soit ca existe mais etat arrive n'est pas celui que je veux ajouter
-		if (tuple(etat_depart), symbole) not in self.transitions or ((tuple(etat_depart), symbole) in self.transitions and etat_arrive not in self.f_transitions(etat_depart, symbole)):
-
-			if (tuple(etat_depart), symbole) in self.transitions:
-				self.transitions[tuple(etat_depart),symbole].append(etat_arrive)
-			else:
-                # print("l'état d'arrivé est", etat_arrive)
-				self.transitions[(tuple(etat_depart), symbole)] = [etat_arrive]
-
-			return True
-
-		elif (tuple(etat_depart), symbole) in self.transitions and etat_arrive in self.f_transitions(etat_depart, symbole):
-			print("transition deja presente dans l'automate")
-			return False
-
-
-    # fonction qui retourne toutes les natures d'un automate
-	def nature(self) -> str:
-
-		nature = []
-			
-		if self.est_epsilone_non_deterministe():
-			nature.append("ε-AFN")
-
-		if self.est_non_deterministe():
-			nature.append("AFN")
-
-		if self.est_deterministe():
-			nature.append("AFD")
-
-		if self.est_complet():
-			nature.append("Complet")
-
-		if len(nature) == 0:
-			nature = ['non correctement defini.']
-
-		return "Cet automate est : " + ", ".join(nature)
-
-	
-	def verifier_etats(self):
-		pass
-
-
-	# Afficher de facon commode un automate
-	def __str__(self):
-
-		"""
-		Affichage de facon propre l'objet automate
-		"""
-		#intermediaires = set([etat[0] for etat in self.etats]) - set([etat[0] for etat in self.etats_initiaux]) - set([etat[0] for etat in self.etats_finaux])
-		#print(intermediaires)
-		ret =  self.nature() + "\n"
-		ret += "   - alphabet   : {" + ", ".join(self.alphabet) + "} \n"
-		ret += "   - initiaux      : " + ", ".join(["(%s)" % ",".join(init) for init in self.etats_initiaux]) + "\n"
-		#ret += "   - etats intermediaires : " + ", ".join([",".join(init) for init in intermediaires]) + "\n" 
-		ret += "   - finaux    : " + ", ".join(["(%s)" %",".join(init) for init in self.etats_finaux]) + "\n"
-		ret += "   - nombre d'etats : %d \n" % (len(self.etats))
-		ret += "   - transitions :\n"
-		for etat in self.etats:
-			ret += "       Partant de l'état (%s): \n" % (",".join(etat))
-			for symbole in self.alphabet:
-				
-				if not len(self.f_transitions(etat,symbole)) == 0:
-					for dest in self.f_transitions(etat,symbole):
-						ret +=  "          en lisant le symbole (%s) on arrive à l'état (%s)\n" % (symbole, ",".join(dest))
-						
-		return ret
-    
-
-	# surcharge de l'opération d'addition
-	def __add__(self, b):
-
-		"""
-		les noms des etats doivent etre differents
-		"""
-
-		if self.alphabet != b.alphabet:
-			print("les deux automates doivent avoir le meme alphabet")
-			exit()
-		
-		else:
-			tous_les_etats_de_union = []
-			toutes_les_transitions_union = {}
-
-			len_etat_1 = len(self.etats_initiaux)
-			etat_initial_union = []
-			for etat in self.etats_initiaux:
-				for num_etat in etat:
-					etat_initial_union.append(num_etat)
-
-			for etat in b.etats_initiaux:
-				for num_etat in etat:
-					etat_initial_union.append(num_etat)
-            
-			tous_les_etats_de_union.append(etat_initial_union)
-			etat_initial_union = [etat_initial_union]
-
-			for etat in tous_les_etats_de_union:
-				
-				for character in self.alphabet:
-					
-					len_etat_1 = 0
-					nouvel_etat_pour_charactere = []
-
-					for numero_etat in etat:
-						
-						
-						liste_des_etats = self.f_transitions([numero_etat], character)
-						if len(liste_des_etats) == 0:
-							liste_des_etats = b.f_transitions([numero_etat], character)
-
-						for e in liste_des_etats:
-							for num_etat in e:
-								if num_etat not in nouvel_etat_pour_charactere:
-									nouvel_etat_pour_charactere.append(num_etat)
-
-
-					if nouvel_etat_pour_charactere not in tous_les_etats_de_union:
-						if len(nouvel_etat_pour_charactere) != 0:
-							tous_les_etats_de_union.append(nouvel_etat_pour_charactere)	
-
-					if len(nouvel_etat_pour_charactere) != 0:
-						toutes_les_transitions_union[(tuple(etat), character)] = [
-							nouvel_etat_pour_charactere]
-
-			etats_finaux_de_union = []
-			for etat in tous_les_etats_de_union:
-				for etat_final in self.etats_finaux: 
-					for num_etat in etat_final:
-						if num_etat in etat:
-							if etat not in etats_finaux_de_union:
-								etats_finaux_de_union.append(etat)
-
-				for etat_final in b.etats_finaux: 
-					for num_etat in etat_final:
-						if num_etat in etat:
-							if etat not in etats_finaux_de_union:
-								etats_finaux_de_union.append(etat)
-
-			etats_finaux_de_union = etats_finaux_de_union
-			res = Automate()
-			res.create(self.alphabet, tous_les_etats_de_union, etat_initial_union, etats_finaux_de_union, toutes_les_transitions_union)
-			print(res)
-		return res
-	
-	def get_langage_commentaire(self):
-		"""
-		Langage commentaire est une fonction qui retourne un automate 
-        qui reconnais les commentaires d'un langage
-        """
-		A = Automate()
-		A.alphabet = self.alphabet
-		special_char = ["*", "/", "%"]
-		A.alphabet += special_char
-
-		A.ajout_etat(["0"], initial=True)
-		A.ajout_etat(["1"])
-		A.ajout_etat(["2"])
-		A.ajout_etat(["3"])
-		A.ajout_etat(["4"])
-		A.ajout_etat(["5"])
-		A.ajout_etat(["6"])
-		A.ajout_etat(["7",], final=True)
-
-        # debut du commentaierz*e
-		A.ajout_transition(["0"], "/", ["1"])
-		A.ajout_transition(["1"], "*", ["2"])
-
-		for symbole in A.alphabet:
-			if symbole not in special_char:
-				A.ajout_transition(["2"], symbole, ["2"])
-				A.ajout_transition(["5"], symbole, ["2"])
-
-        # echapement du commentaire
-		A.ajout_transition(["2"], "%", ["3"])
-		A.ajout_transition(["3"], "*", ["4"])
-		A.ajout_transition(["4"], "/", ["5"])
-
-        # fin du commentaire
-		A.ajout_transition(["2"], "*", ["6"])
-		A.ajout_transition(["6"], "/", ["7"])
-
-		return A
-
-
+# alphabet de qui sera utilisé dans tous le devoir
 alphabets = {
     "int": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
     "boolean": ["T", "r", "u", "e", "F", "a", "l", "s", "e"],
     "operators": ["+", "-", "*", "/", "="],
     "letters": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
-    "conditions": ["if", "else", "for", "for_each", "while"]
+    "conditions": ["i", "f", "e", "l", "s", "e"],
+    "loops": ["f", "o", "r",  "w", "h", "i", "l", "e"]
 }
-
-
-### TESTS
-
-"""
-a = Automate()
-
-a.ajouter_symbole(symbole = "a")
-
-a.ajouter_symbole(symbole = "b")
-
-a.ajout_etat(etat = ['0'] , initial =True , final =True)
-
-a.ajout_etat(etat = ['1'] , )
-
-a.ajout_transition( ['0'] , "a" , ['1'])
-a.ajout_transition( ['0'] , "b" , ['0'])
-a.ajout_transition( ['1'] , "b" , ['1'])
-a.ajout_transition( ['1'] , "a" , ['0'])
-
-
-b = Automate()
-
-b.ajouter_symbole(symbole = "a")
-
-b.ajouter_symbole(symbole = "b")
-
-b.ajout_etat(etat = ['2'] , initial =True , final =True)
-
-b.ajout_etat(etat = ['3'] , )
-
-b.ajout_transition( ['2'] , "a" , ['2'])
-b.ajout_transition( ['2'] , "b" , ['3'])
-b.ajout_transition( ['3'] , "a" , ['3'])
-b.ajout_transition( ['3'] , "b" , ['2'])
-
-
-
-a = Automate()
-
-a.ajouter_symbole(symbole = "a")
-
-a.ajouter_symbole(symbole = "b")
-
-a.ajout_etat(etat = ['0'] , initial =True , final =True)
-
-a.ajout_etat(etat = ['1'] , )
-
-a.ajout_etat(etat = ['2'])
-
-a.ajout_transition( ['0'] , "b" , ['1'])
-a.ajout_transition( ['0'] , "a" , ['2'])
-a.ajout_transition( ['1'] , "b" , ['0'])
-a.ajout_transition( ['2'] , "a" , ['1'])
-
-"""
-b = Automate()
-
-b.ajouter_symbole(symbole = "a")
-
-b.ajouter_symbole(symbole = "b")
-
-b.ajout_etat(etat = ['3'] , initial =True , final =True)
-
-b.ajout_etat(etat = ['4'] , )
-
-b.ajout_transition( ['3'] , "a" , ['4'])
-b.ajout_transition( ['4'] , "b" , ['3'])
-
-a = Automate()
-
-a.ajouter_symbole(symbole = "a")
-
-a.ajouter_symbole(symbole = "b")
-
-a.ajout_etat(etat = ['0'], initial =True)
-a.ajout_etat(etat = ['1'])
-a.ajout_etat(etat = ['2'])
-a.ajout_etat(etat = ['3'])
-a.ajout_etat(etat = ['4'])
-a.ajout_etat(etat = ['5'], final =True)
-
-a.ajout_transition( ['0'] , "b" , ['3'])
-a.ajout_transition( ['0'] , "a" , ['1'])
-a.ajout_transition( ['1'] , "a" , ['1'])
-a.ajout_transition( ['1'] , "b" , ['2'])
-a.ajout_transition( ['2'] , "a" , ['2'])
-a.ajout_transition( ['2'] , "b" , ['5'])
-a.ajout_transition( ['3'] , "a" , ['3'])
-a.ajout_transition( ['3'] , "b" , ['4'])
-a.ajout_transition( ['4'] , "a" , ['4'])
-a.ajout_transition( ['4'] , "b" , ['5'])
-a.ajout_transition( ['5'] , "a" , ['5'])
-a.ajout_transition( ['5'] , "b" , ['5'])
-
-#print(a)
-#a.minimiser()
-
-c = Automate()
-
-c.ajouter_symbole(symbole = "a")
-
-c.ajouter_symbole(symbole = "b")
-c.ajouter_symbole(symbole = "c")
-
-c.ajout_etat(etat = ['0'], initial =True)
-c.ajout_etat(etat = ['1'])
-c.ajout_etat(etat = ['2'])
-c.ajout_etat(etat = ['3'])
-c.ajout_etat(etat = ['4'], final = True)
-c.ajout_etat(etat = ['5'], final =True)
-
-c.ajout_transition( ['0'] , "b" , ['0'])
-c.ajout_transition( ['0'] , "a" , ['2'])
-c.ajout_transition( ['0'] , "c" , ['1'])
-c.ajout_transition( ['1'] , "a" , ['3'])
-c.ajout_transition( ['1'] , "c" , ['3'])
-c.ajout_transition( ['1'] , "b" , ['1'])
-c.ajout_transition( ['2'] , "a" , ['2'])
-c.ajout_transition( ['2'] , "b" , ['4'])
-c.ajout_transition( ['2'] , "c" , ['3'])
-c.ajout_transition( ['3'] , "a" , ['3'])
-c.ajout_transition( ['3'] , "c" , ['3'])
-c.ajout_transition( ['3'] , "b" , ['5'])
-c.ajout_transition( ['4'] , "a" , ['4'])
-c.ajout_transition( ['4'] , "b" , ['4'])
-c.ajout_transition( ['4'] , "c" , ['5'])
-c.ajout_transition( ['5'] , "a" , ['5'])
-c.ajout_transition( ['5'] , "b" , ['5'])
-c.ajout_transition( ['5'] , "c" , ['5'])
-
-
-print(a)
-d = a+b
-print(d)

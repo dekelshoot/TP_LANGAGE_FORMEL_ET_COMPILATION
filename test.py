@@ -1,83 +1,22 @@
-# import base
-# import util
-# A = base.Automate()
-# A.ajouter_symbole("a")
-# A.ajouter_symbole("b")
-# A.ajout_etat(["1"], initial=True)
-# A.ajout_etat(["2",], final=True)
-# A.ajout_transition(["1"], "a", ["1"])
-# A.ajout_transition(["1"], "b", ["2"])
-# A.ajout_transition(["2"], "b", ["2"])
-# util.to_png(A=A)
-# print(A)
+from base import *
+from util import *
 
-# import util
-# import determinisation
-# A = util.read("AF.af")
-# B = determinisation.determinisation(A)
-# print(B.etats)
-# print(B.etats_initiaux)
-# print("finaux", B.etats_finaux)
-# print("transition" + str(B.transitions))
-# util.to_png(A=B)
-# print(B)
+create_automate_complementaire()
+
+A = read("Automate_loop.af")
+B = read("Automate_condition.af")
+C = read("Automate_int.af")
+F = read("Automate_operator.af")
+
+D = A+B+C+F
 
 
-# import util
-# import reconnaissance
-# import completion
-# import determinisation
-# A = util.read("AF.af")
-# text = "aaaba"
+save(D, "D.af")
+to_png(D, "D.png")
 
-# B = determinisation.determinisation(A)
-# C = completion.completion(B)
-# util.to_png(B)
-
-"""
-import util
-import base
-import reconnaissance
-import completion
-from determinisation import determinisation
-
-A = base.Automate()
-B = base.Automate()
-A.ajouter_symbole("a")
-A.ajouter_symbole("b")
-
-B.ajouter_symbole("a")
-B.ajouter_symbole("b")
-
-A.ajout_etat(["0"], initial=True, final=True)
-A.ajout_etat(["1",])
-
-B.ajout_etat(["0"], initial=True, final=True)
-B.ajout_etat(["1",])
-
-A.ajout_transition(["0"], "b", ["0"])
-A.ajout_transition(["0"], "a", ["1"])
-A.ajout_transition(["1"], "b", ["1"])
-A.ajout_transition(["1"], "a", ["0"])
-
-B.ajout_transition(["0"], "a", ["0"])
-B.ajout_transition(["0"], "b", ["1"])
-B.ajout_transition(["1"], "b", ["0"])
-
-# print(A)
-# print(B)
-C = A+B
-
-# print(C)
-
-util.to_png(determinisation(C))
-"""
-
-import util
-import determinisation
-A = util.read("AF.af")
-util.to_png(A=A)
-B = determinisation.determinisation(A)
-C = A.get_langage_commentaire()
-util.to_png(A=B, filename="determinisation.png")
-util.to_png(A=C, filename="commentaire.png")
+texte = "if a = 5 then 124 else 324"
+print(reconnaissance_texte(D, texte))
+# print(A.alphabet, "\n", A.etats, "\n", A.etats_initiaux,
+#       "\n", A.etats_finaux, "\n", A.transitions)
+# print(D.alphabet, "\n", D.etats, "\n", D.etats_initiaux,
+#       "\n", D.etats_finaux, "\n", D.transitions)
