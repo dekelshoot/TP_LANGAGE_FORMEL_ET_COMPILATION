@@ -1,0 +1,79 @@
+digraph Graph {
+    rankdir="LR";
+
+    // States (23)
+    node [shape = point ];     __Qi__ // Initial state
+    node [shape = circle];       Q_0 [label = " 0 "];
+    node [shape = doublecircle]; Q_1 [label = " 1 "];
+    node [shape = doublecircle]; Q_2 [label = " 2 "];
+    node [shape = circle];       Q_3 [label = " 3 "];
+    node [shape = circle];       Q_4 [label = " 4 "];
+    node [shape = circle];       Q_5 [label = " 5 "];
+    node [shape = circle];       Q_6 [label = " 6 "];
+    node [shape = circle];       Q_7 [label = " 7 "];
+    node [shape = circle];       Q_8 [label = " 8 "];
+    node [shape = circle];       Q_9 [label = " 9 "];
+    node [shape = doublecircle]; Q_10 [label = " 10 "];
+    node [shape = circle];       Q_11 [label = " 11 "];
+    node [shape = circle];       Q_12 [label = " 12 "];
+    node [shape = doublecircle]; Q_13 [label = " 13 "];
+    node [shape = circle];       Q_14 [label = " 14 "];
+    node [shape = circle];       Q_15 [label = " 15 "];
+    node [shape = circle];       Q_16 [label = " 16 "];
+    node [shape = doublecircle]; Q_17 [label = " 17 "];
+    node [shape = circle];       Q_18 [label = " 18 "];
+    node [shape = doublecircle]; Q_19 [label = " 19 "];
+    node [shape = circle];       Q_20 [label = " 20 "];
+    node [shape = doublecircle]; Q_21 [label = " 21 "];
+    node [shape = doublecircle]; Q_22 [label = " 22 "];
+
+    // Transitions
+    __Qi__ -> Q_0; // Initial state arrow
+    Q_0 -> Q_1 [label = "3 "];
+    Q_0 -> Q_2 [label = "- "];
+    Q_0 -> Q_1 [label = "0 "];
+    Q_0 -> Q_3 [label = "t "];
+    Q_0 -> Q_2 [label = "> "];
+    Q_0 -> Q_1 [label = "8 "];
+    Q_0 -> Q_4 [label = "d "];
+    Q_0 -> Q_2 [label = "/ "];
+    Q_0 -> Q_2 [label = "= "];
+    Q_0 -> Q_1 [label = "4 "];
+    Q_0 -> Q_2 [label = "< "];
+    Q_0 -> Q_1 [label = "5 "];
+    Q_0 -> Q_5 [label = "w "];
+    Q_0 -> Q_6 [label = "f "];
+    Q_0 -> Q_1 [label = "9 "];
+    Q_0 -> Q_1 [label = "1 "];
+    Q_0 -> Q_2 [label = "+ "];
+    Q_0 -> Q_7 [label = "i "];
+    Q_0 -> Q_1 [label = "6 "];
+    Q_0 -> Q_2 [label = "* "];
+    Q_0 -> Q_1 [label = "2 "];
+    Q_0 -> Q_1 [label = "7 "];
+    Q_0 -> Q_8 [label = "e "];
+    Q_1 -> Q_1 [label = "3 "];
+    Q_1 -> Q_1 [label = "0 "];
+    Q_1 -> Q_1 [label = "8 "];
+    Q_1 -> Q_1 [label = "4 "];
+    Q_1 -> Q_1 [label = "5 "];
+    Q_1 -> Q_1 [label = "9 "];
+    Q_1 -> Q_1 [label = "1 "];
+    Q_1 -> Q_1 [label = "6 "];
+    Q_1 -> Q_1 [label = "2 "];
+    Q_1 -> Q_1 [label = "7 "];
+    Q_3 -> Q_9 [label = "h "];
+    Q_4 -> Q_10 [label = "o "];
+    Q_5 -> Q_11 [label = "h "];
+    Q_6 -> Q_12 [label = "o "];
+    Q_7 -> Q_13 [label = "f "];
+    Q_8 -> Q_14 [label = "l "];
+    Q_9 -> Q_15 [label = "e "];
+    Q_11 -> Q_16 [label = "i "];
+    Q_12 -> Q_17 [label = "r "];
+    Q_14 -> Q_18 [label = "s "];
+    Q_15 -> Q_19 [label = "n "];
+    Q_16 -> Q_20 [label = "l "];
+    Q_18 -> Q_21 [label = "e "];
+    Q_20 -> Q_22 [label = "e "];
+}

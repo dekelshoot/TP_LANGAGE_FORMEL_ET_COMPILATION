@@ -1,0 +1,14 @@
+digraph Graph {
+    rankdir="LR";
+
+    // States (2)
+    node [shape = point ];     __Qi__ // Initial state
+    node [shape = doublecircle]; Q_0 [label = " 1=2=2 "];
+    node [shape = circle];       Q_1 [label = " 1 "];
+
+    // Transitions
+    __Qi__ -> Q_1; // Initial state arrow
+    Q_0 -> Q_0 [label = "a "];
+    Q_0 -> Q_0 [label = "b "];
+    Q_1 -> Q_0 [label = "a "];
+}
