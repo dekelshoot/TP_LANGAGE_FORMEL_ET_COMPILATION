@@ -364,7 +364,9 @@ class Automate():
 
     def passer_de_epsilonne_afn_a_afn(self):
 
-        if not self.est_non_deterministe():
+        if self.est_epsilone_non_deterministe():
+
+            etatsfinaux = self.etats_finaux
 
             for etat in self.etats:
                 e_fermeture_de_etat = self.recuperer_epsilonne_fermeture(etat)
@@ -388,6 +390,19 @@ class Automate():
 
             if symbole in self.alphabet:
                 self.alphabet.remove(symbole)
+
+            etats_finaux_du_afn = []
+            print(etatsfinaux)
+            print(self.etats)
+            for etat in self.etats:
+                for etat_final in etatsfinaux:
+                    for num_etat in etat_final:
+                        if num_etat in etat:
+                            if etat not in etats_finaux_du_afn:
+                                etats_finaux_du_afn.append(etat)
+            print(etats_finaux_du_afn)
+            self.etats_finaux = etats_finaux_du_afn
+        print(self)
 
     def create(self, alphabet: list, etats: list, etats_initiaux: list, etats_finaux: list, transitions: dict, type="unknow"):
         """

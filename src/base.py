@@ -137,6 +137,7 @@ def reconnaissance_texte(A: Automate, texte: str, sep=" ") -> list:
     for token in tokens:
         Matrice_reconnaissance.append([token]+reconnaissance_mot(A, token))
 
+    # print(Matrice_reconnaissance)
     return Matrice_reconnaissance
 
 
@@ -182,6 +183,8 @@ def definir() -> Automate:
     while i < taille_alphabet:
 
         char = input(" entrez le symbole numero " + str(i+1) + ": \t")
+        if char == " " or char == "":
+            char = "ε"
         if not A.valider_symbole(char):
             A.ajouter_symbole(char)
             i = i + 1
@@ -239,6 +242,8 @@ def definir() -> Automate:
 
             symbole = input(
                 f" entrez le symbole de la transition numero {str(j+1)}: ")
+            if symbole == " " or symbole == "":
+                symbole = "ε"
             etat_destination = input(
                 f" entrez le nom de l'etat destination de la transition numero {str(j+1)}: ")
 
@@ -248,8 +253,8 @@ def definir() -> Automate:
 
                 j = j+1
 
-    #save(A, f"Automate_{A.type}.af")
-    #to_png(A=A)
+    # save(A, f"Automate_{A.type}.af")
+    # to_png(A=A)
     return A
 
 # creation des automates complementaires
@@ -364,7 +369,7 @@ def determine_type(res: list):
     A = read("Automate_loop.af")
     B = read("Automate_condition.af")
     C = read("Automate_int.af")
-    D = read("Automate_variable.af")
+    # D = read("Automate_variable.af")
     E = read("Automate_operator.af")
 
     analyse_lexical = ""
@@ -381,20 +386,17 @@ def determine_type(res: list):
                     result[2] = C.type
                     analyse_lexical += "<"+result[0]+":"+result[2]+">"
                 else:
-                    if reconnaissance_mot(D, result[0])[0]:
-                        result[2] = D.type
+                    if reconnaissance_mot(E, result[0])[0]:
+                        result[2] = E.type
                         analyse_lexical += "<"+result[0]+":"+result[2]+">"
                     else:
-                        if reconnaissance_mot(E, result[0])[0]:
-                            result[2] = E.type
-                            analyse_lexical += "<"+result[0]+":"+result[2]+">"
-                        else:
-                            analyse_lexical += "<" + \
+                        temp = "<" + \
+                            result[0]+":"+result[2]+">"
+                        if result[0] not in alphabets["reserved_words"]:
+                            result[2] = "variable"
+                            temp = "<" + \
                                 result[0]+":"+result[2]+">"
-                            if result[0] not in alphabets["reserved_words"]:
-                                result[2] = "variable"
-                                analyse_lexical += "<" + \
-                                    result[0]+":"+result[2]+">"
+                        analyse_lexical += temp
 
     return analyse_lexical
 
@@ -407,5 +409,5 @@ alphabets = {
     "variables": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
     "conditions": ["i", "f", "e", "l", "s", "e", "t", "h", "e", "n"],
     "loops": ["f", "o", "r",  "w", "h", "i", "l", "e", "d", "o"],
-    "reserved_words": ["then", "in",]
+    "reserved_words": ["then", "in", "and", "try", "char", "float", "return", "int", "break", "continue", "case", "catch", "endfor", "endif", "switch", "endwhile"]
 }
